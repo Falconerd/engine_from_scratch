@@ -4,26 +4,26 @@
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
-void *debug_platform_read_entire_file(const char *file_name) {
-    void *result = 0;
+read_file_result debug_platform_read_entire_file(const char *file_name) {
+    read_file_result result = {0};
     HANDLE h = CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h != INVALID_HANDLE_VALUE) {
         LARGE_INTEGER file_size;
         if (GetFileSize(h, &file_size)) {
-            u32 file_size_u32 = safe_truncate_u64(file_size.QuadPart);
-            result = VirtualAlloc(0, file_size_u32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-            if (result) {
+            u32 file_size_32 = safe_truncate_u64(file_size.QuadPart);
+            void *data = VirtualAlloc(0, file_size_32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+            if (data) {
                 DWORD bytes_read;
-                if (ReadFile(h, result, file_size.QuadPart, &bytes_read, 0)) {
-                    
+                if (ReadFile(h, data, file_size.QuadPart, &bytes_read, 0) && file_size_32 == bytes_read) {
+                    result.size = file_size_32;
+                    result.data = data;
                 } else {
-                    debug_platform_free_file_memory(result);
-                    result = 0;
+                    debug_platform_free_file_memory(data);
                 }
-            } else {}
-        } else {}
+            }
+        }
         CloseHandle(h);
-    } else {}
+    }
 
     return result;
 }
@@ -32,7 +32,19 @@ void debug_platform_free_file_memory(void *ptr) {
     VirtualFree(ptr, 0, MEM_RELEASE);
 }
 
-b32 debug_platform_write_entire_file(char *path, u64 size, void *ptr);
+b32 debug_platform_write_entire_file(const char *file_name, u64 size, void *ptr) {
+    b32 result = 0;
+    HANDLE h = CreateFile(file_name, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
+    if (h != INVALID_HANDLE_VALUE) {
+        DWORD bytes_written;
+        if (WriteFile(h, ptr, size, &bytes_written, 0)) {
+            result = bytes_written == size;
+        }
+        CloseHandle(h);
+    }
+
+    return result;
+}
 
 void WinMainCRTStartup(void) {
     HINSTANCE handle = GetModuleHandle(0);

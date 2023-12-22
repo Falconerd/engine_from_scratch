@@ -2,12 +2,13 @@
 #define DRF_WIN32_H
 
 #define CONST const
-#define CALLBACK __stdcall
+
 typedef int                 BOOL;
 typedef long                LONG;
 typedef char                CHAR;
 typedef void *              PVOID;
 typedef void *              LPVOID;
+typedef void *              LPCVOID;
 typedef PVOID               HANDLE;
 typedef HANDLE              HINSTANCE;
 typedef HINSTANCE           HMODULE;
@@ -158,11 +159,14 @@ typedef MSG *               LPMSG;
 #define OPEN_ALWAYS         4
 #define TRUNCATE_EXISTING   4
 
-#define GENERIC_READ        (1 << 31)
+#define GENERIC_READ        (0x80000000L)
+#define GENERIC_WRITE       (0x40000000L)
+#define GENERIC_EXECUTE     (0x20000000L)
+#define GENERIC_ALL         (0x10000000L)
 
 #define INVALID_HANDLE_VALUE (void *)-1
 
-typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
+typedef LRESULT (__stdcall* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 
 typedef struct WNDCLASS {
   UINT style;
@@ -220,5 +224,6 @@ BOOL __stdcall GetFileSizeEx(HANDLE, PLARGE_INTEGER);
 
 BOOL CloseHandle(HANDLE);
 BOOL ReadFile(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
+BOOL WriteFile(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
 
 #endif

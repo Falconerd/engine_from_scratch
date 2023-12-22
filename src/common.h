@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 typedef __int32             b32;
 typedef unsigned __int8     u8;
 typedef unsigned __int16    u16;
@@ -31,10 +34,17 @@ typedef __int64             i64;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef BUILD_INTERNAL
-void *debug_platform_read_entire_file(const char *path);
+#ifndef BUILD_EXTERNAL
+
+typedef struct {
+    u32 size;
+    void *data;
+} read_file_result;
+
+read_file_result debug_platform_read_entire_file(const char *path);
 void debug_platform_free_file_memory(void *ptr);
-b32 debug_platform_write_entire_file(char *path, u64 size, void *ptr);
+b32 debug_platform_write_entire_file(const char *path, u64 size, void *ptr);
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,3 +56,5 @@ typedef struct {
     u64 transient_storage_size;
     void *transient_storage;
 } game_memory;
+
+#endif
