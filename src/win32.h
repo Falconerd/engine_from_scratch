@@ -1,3 +1,6 @@
+#ifndef DRF_WIN32_H
+#define DRF_WIN32_H
+
 #define CONST const
 #define CALLBACK __stdcall
 typedef int                 BOOL;
@@ -153,3 +156,5 @@ BOOL PeekMessageA(LPMSG, HWND, UINT, UINT, UINT);
 int __stdcall MessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
 
 int GetSystemMetrics(int);
+
+#endif

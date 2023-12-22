@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     char buf[512] = {0};
     const char *optimization = release ? "/O2" : "/Zi";
-    sprintf(buf, "%s %s %s src\\main.c -Fe:_main.exe -link %s %s", CC, CFLAGS, optimization, LINK_ARGS, LIBS);
+    sprintf(buf, "%s %s %s src\\main.c -Fe:_main.exe -link %s -entry:main %s", CC, CFLAGS, optimization, LINK_ARGS, LIBS);
     printf("%s\n", buf);
     system(buf);
 
