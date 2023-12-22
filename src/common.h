@@ -24,7 +24,12 @@ typedef __int64             i64;
 #define MB(x) (KB(x) * 1024ULL)
 #define GB(x) (MB(x) * 1024ULL)
 #define TB(x) (GB(x) * 1024ULL)
+
+#ifndef BUILD_SPEED
 #define ASSERT(x) if (!(x)) { __debugbreak(); }
+#else
+#define ASSERT(x) ((void)x)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

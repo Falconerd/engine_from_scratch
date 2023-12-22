@@ -85,9 +85,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     gm.permanent_storage = VirtualAlloc(base_address, gm.permanent_storage_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     gm.transient_storage = ((u8 *)gm.permanent_storage) + gm.permanent_storage_size;
 
-#ifndef BUILD_SPEED
     ASSERT(gm.permanent_storage && "Failed to allocate memory.");
-#endif
 
     gm.is_initialized = 1;
 
