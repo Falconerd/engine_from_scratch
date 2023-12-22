@@ -20,6 +20,7 @@ typedef WORD                ATOM;
 typedef unsigned long       DWORD;
 typedef HANDLE              HMENU;
 typedef __int64             LONG_PTR;
+typedef unsigned __int64    ULONG_PTR;
 typedef LONG_PTR            LRESULT;
 typedef unsigned __int64    UINT_PTR;
 typedef UINT_PTR            WPARAM;
@@ -27,6 +28,38 @@ typedef LONG_PTR            LPARAM;
 typedef HANDLE              HICON;
 typedef HICON               HCURSOR;
 typedef HICON               HBRUSH;
+typedef ULONG_PTR           SIZE_T;
+typedef DWORD *             LPDWORD;
+typedef __int64             LONGLONG;
+
+// FIXME
+typedef void * LPSECURITY_ATTRIBUTES;
+
+typedef union _LARGE_INTEGER {
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } DUMMYSTRUCTNAME;
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } u;
+  LONGLONG QuadPart;
+} LARGE_INTEGER;
+typedef LARGE_INTEGER * PLARGE_INTEGER;
+
+typedef struct _OVERLAPPED {
+  ULONG_PTR Internal;
+  ULONG_PTR InternalHigh;
+  union {
+    struct {
+      DWORD Offset;
+      DWORD OffsetHigh;
+    } DUMMYSTRUCTNAME;
+    PVOID Pointer;
+  } DUMMYUNIONNAME;
+  HANDLE    hEvent;
+} OVERLAPPED, *LPOVERLAPPED;
 
 typedef struct tagPOINT {
     LONG x;
@@ -107,6 +140,28 @@ typedef MSG *               LPMSG;
 #define MB_OK               0x00000000L
 #define MB_OKCANCEL         0x00000001L
 
+#define MEM_COMMIT          0x00001000
+#define MEM_RESERVE         0x00002000
+#define MEM_RESET           0x00080000
+#define MEM_RESET_UNDO      0x10000000
+#define MEM_DECOMMIT        0x00004000
+#define MEM_RELEASE         0x00008000
+
+#define PAGE_READWRITE      0x04
+
+#define FILE_SHARE_READ     0x00000001
+#define FILE_SHARE_WRITE    0x00000002
+
+#define CREATE_NEW          1
+#define CREATE_ALWAYS       2
+#define OPEN_EXISTING       3
+#define OPEN_ALWAYS         4
+#define TRUNCATE_EXISTING   4
+
+#define GENERIC_READ        (1 << 31)
+
+#define INVALID_HANDLE_VALUE (void *)-1
+
 typedef LRESULT (CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 
 typedef struct WNDCLASS {
@@ -121,8 +176,6 @@ typedef struct WNDCLASS {
   LPCSTR lpszMenuMane;
   LPCSTR lpszClassName;
 } WNDCLASSA, WNDCLASS;
-
-int __stdcall WinMain(HINSTANCE, HINSTANCE, LPCSTR, int);
 
 #define GetModuleHandle GetModuleHandleA
 HMODULE __stdcall GetModuleHandleA(LPCSTR);
@@ -156,5 +209,16 @@ BOOL PeekMessageA(LPMSG, HWND, UINT, UINT, UINT);
 int __stdcall MessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
 
 int GetSystemMetrics(int);
+
+LPVOID VirtualAlloc(LPVOID, SIZE_T, DWORD, DWORD);
+
+#define CreateFile CreateFileA
+HANDLE CreateFileA(LPCTSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
+
+#define GetFileSize GetFileSizeEx
+BOOL __stdcall GetFileSizeEx(HANDLE, PLARGE_INTEGER);
+
+BOOL CloseHandle(HANDLE);
+BOOL ReadFile(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 
 #endif
