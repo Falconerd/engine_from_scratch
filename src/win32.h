@@ -78,6 +78,8 @@ typedef struct tagMSG {
 
 typedef MSG *               LPMSG;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define CW_USEDEFAULT       ((int)0x80000000)
 
 #define WS_OVERLAPPED       0x00000000L
@@ -165,6 +167,10 @@ typedef MSG *               LPMSG;
 #define GENERIC_ALL         (0x10000000L)
 
 #define INVALID_HANDLE_VALUE (void *)-1
+
+#define VK_ESCAPE             0x1B
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef LRESULT (__stdcall* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 

@@ -1,6 +1,7 @@
 #include "common.h"
 #include "win32.h"
 #include "game.c"
+#include "util.c"
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
@@ -92,23 +93,45 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    input_state input = {0};
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     b32 is_running = 1;
     while (is_running) {
         MSG msg;
         while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_KEYDOWN) {
-                if (MessageBox(0, "Really quit?", "", MB_OKCANCEL) == IDOK) {
-                    is_running = 0;
+                if (msg.wParam == VK_ESCAPE) {
+                    if (MessageBox(0, "Really quit?", "Aww", MB_OKCANCEL) == IDOK) {
+                        is_running = 0;
+                        break;
+                    }
                 }
+
+                // TODO: Key mapping.
+                if (msg.wParam == 'F') input.forward.down = 1;
+                if (msg.wParam == 'S') input.backward.down = 1;
+                if (msg.wParam == 'R') input.left.down = 1;
+                if (msg.wParam == 'T') input.right.down = 1;
+                break;
+            }
+
+            if (msg.message == WM_KEYUP) {
+                if (msg.wParam == 'F') input.forward.down = 0;
+                if (msg.wParam == 'S') input.backward.down = 0;
+                if (msg.wParam == 'R') input.left.down = 0;
+                if (msg.wParam == 'T') input.right.down = 0;
                 break;
             }
             DispatchMessage(&msg);
         }
 
-        game_update_and_render(&gm);
+        game_update_and_render(&gm, &input);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     return 0;
 }
+

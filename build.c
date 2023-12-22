@@ -8,7 +8,7 @@
     -Gs1000000000: Turn off stack probes.
     -Oi: Enable compiler intrinsics.
 */
-#define CFLAGS "-nologo -GR- -GS- -Gs1000000000 -Oi"
+#define CFLAGS "-TC -nologo -GR- -GS- -Gs1000000000 -Oi"
 #define CC "cl"
 
 /*
@@ -43,8 +43,8 @@ int main(int argc, char *argv[]) {
     char buf[512] = {0};
     const char *optimization = release ? "/O2" : "/Zi";
     // NOTE: Not sure if this is the best way to do this, but it works fine.
-    const char *release_header = release ? "src\\release.c" : "";
-    sprintf(buf, "%s %s %s %s src\\win32_main.c -Fe:_main.exe -link %s %s", CC, CFLAGS, optimization, release_header, LINK_ARGS, LIBS);
+    const char *release_header = release ? " src\\release.c" : "";
+    sprintf(buf, "%s %s %s%s src\\win32_main.c -Fe:_main.exe -link %s %s", CC, CFLAGS, optimization, release_header, LINK_ARGS, LIBS);
     printf("%s\n", buf);
     system(buf);
 
@@ -60,3 +60,4 @@ int main(int argc, char *argv[]) {
     printf("Time taken: %.6f seconds\n", seconds);
     return 0;
 }
+
