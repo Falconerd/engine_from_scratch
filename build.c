@@ -1,7 +1,8 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
-#define CFLAGS "-MTd -nologo -Gm- -GR- -EHa- -Oi"
+#define CFLAGS "-nologo -GR- -Oi"
+#define LIBPATH ".\\lib"
 #define CC "cl"
 
 int main(int argc, char *argv[]) {
@@ -27,7 +28,8 @@ int main(int argc, char *argv[]) {
 
     char buf[512] = {0};
     const char *optimization = release ? "/O2" : "/Zi";
-    sprintf(buf, "%s %s %s src\\main.c -link -nodefaultlib -subsystem:windows kernel32.lib", CC, CFLAGS, optimization);
+    sprintf(buf, "%s %s %s src\\main.c -Fe:_main.exe -link -nodefaultlib -subsystem:windows -libpath:%s kernel32.lib user32.lib gdi32.lib", CC, CFLAGS, optimization, LIBPATH);
+    printf("%s\n", buf);
     system(buf);
 
     system("del /Q .\\*.obj");
