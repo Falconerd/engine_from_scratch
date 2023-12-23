@@ -12,9 +12,9 @@
 // TODO: Investigate CPU hardware sin/cos.
 f32 turn_x(f32 v) {
     v *= CONST_TAU;
-    i32 div = (i32)(v / CONST_PI);
+    s32 div = (s32)(v / CONST_PI);
     v = v - (div * CONST_PI);
-    i32 sign = 1;
+    s32 sign = 1;
     if (div % 2 != 0) {
         sign = -1;
     }

@@ -68,6 +68,12 @@ LRESULT __stdcall win32_window_proc(HWND h, UINT m, WPARAM l, LPARAM w) {
     }
 }
 
+#include "df_array.h"
+
+void *test_alloc(s64 size, void *context) {
+    return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+}
+
 int __stdcall WinMain(void *instance, void *prev_instance, const char *command_line, int show_code) {
     (void)instance; (void)prev_instance; (void)command_line; (void)show_code;
 
@@ -77,6 +83,26 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         MessageBox(0, "Failed to register window class", "Error", 0);
         return 1;
     }
+
+    allocator a = {
+        .alloc = test_alloc,
+    };
+
+    int *arr = df_array(int, a);
+    df_array_put(arr, 42);
+    df_array_put(arr, 23);
+    df_array_put(arr, 13);
+    df_array_put(arr, 17);
+    df_array_put(arr, 42);
+    df_array_put(arr, 23);
+    df_array_put(arr, 13);
+    df_array_put(arr, 17);
+    df_array_put(arr, 42);
+    df_array_put(arr, 23);
+    df_array_put(arr, 13);
+    df_array_put(arr, 17);
+
+    __debugbreak();
 
     int screen_width = GetSystemMetrics(SM_CXSCREEN);
     int screen_height = GetSystemMetrics(SM_CYSCREEN);
