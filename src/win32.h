@@ -1,86 +1,55 @@
 #ifndef DRF_WIN32_H
 #define DRF_WIN32_H
 
-#define W32(r) __declspec(dllimport) r __stdcall
-
-// #define CONST const
-
-// typedef int                 BOOL;
-// typedef long                LONG;
-// typedef char                CHAR;
-// typedef void *              PVOID;
-// typedef void *              LPVOID;
-// typedef void *              LPCVOID;
-// typedef PVOID               HANDLE;
-// typedef HANDLE              HINSTANCE;
-// typedef HINSTANCE           HMODULE;
-// typedef CONST CHAR *        LPCSTR;
-// typedef unsigned int        UINT;
-// typedef HANDLE              HWND;
-// typedef LPCSTR              LPCTSTR;
-// typedef unsigned short      WORD;
-// typedef WORD                ATOM;
-// typedef unsigned long       DWORD;
-// typedef HANDLE              HMENU;
-// typedef __int64             LONG_PTR;
-// typedef unsigned __int64    ULONG_PTR;
-// typedef LONG_PTR            LRESULT;
-// typedef unsigned __int64    UINT_PTR;
-// typedef UINT_PTR            WPARAM;
-// typedef LONG_PTR            LPARAM;
-// typedef HANDLE              HICON;
-// typedef HICON               HCURSOR;
-// typedef HICON               HBRUSH;
-// typedef ULONG_PTR           SIZE_T;
-// typedef DWORD *             LPDWORD;
-// typedef __int64             LONGLONG;
-
-// // FIXME
-// typedef void * LPSECURITY_ATTRIBUTES;
+typedef void * (__stdcall *w32windowproc)(void *, u32, void *, void *);
+typedef void * w32window;
 
 typedef union _LARGE_INTEGER {
   struct {
     u32 LowPart;
-    i32  HighPart;
+    i32 HighPart;
   } DUMMYSTRUCTNAME;
   struct {
-    DWORD LowPart;
-    LONG  HighPart;
+    u32 LowPart;
+    i32 HighPart;
   } u;
-  LONGLONG QuadPart;
-} LARGE_INTEGER;
-typedef LARGE_INTEGER * PLARGE_INTEGER;
+  i64 QuadPart;
+} large_integer;
+typedef struct {
+    i32 x;
+    i32 y;
+} w32point;
 
-// typedef struct _OVERLAPPED {
-//   ULONG_PTR Internal;
-//   ULONG_PTR InternalHigh;
-//   union {
-//     struct {
-//       DWORD Offset;
-//       DWORD OffsetHigh;
-//     } DUMMYSTRUCTNAME;
-//     PVOID Pointer;
-//   } DUMMYUNIONNAME;
-//   HANDLE    hEvent;
-// } OVERLAPPED, *LPOVERLAPPED;
+typedef struct {
+    void *hwnd;
+    u32 message;
+    i32 wParam;
+    void *lParam;
+    u32 time;
+    w32point pt;
+} w32msg;
 
-// typedef struct tagPOINT {
-//     LONG x;
-//     LONG y;
-// } POINT;
+#define W32(r) __declspec(dllimport) r __stdcall
+#define CreateFile CreateFileA
+W32(byte *) CreateFileA(const char *, u32, u32, void *, u32, u32, void *);
+W32(byte *) VirtualAlloc(void *, size, u32, u32);
+#define DefWindowProc DefWindowProcA
+W32(void *) DefWindowProcA(void *, u32, void *, void *);
+#define CreateWindow CreateWindowExA
+W32(void *) CreateWindowExA(u32, void *, void *, u32, i32, i32, i32, i32,
+                            void *, void *, void *, void *);
+#define GetModuleHandle GetModuleHandleA
+W32(void *) GetModuleHandleA(void *);
+#define MessageBox MessageBoxA
+W32(i32) MessageBoxA(void *, void *, void *, u32);
+#define RegisterClass RegisterClassA
+W32(u16) RegisterClassA(void *);
+#define PeekMessage PeekMessageA
+W32(b32) PeekMessageA(w32msg *, void *, u32, u32, u32);
+#define DispatchMessage DispatchMessageA
+W32(void *) DispatchMessageA(w32msg *);
 
-// typedef struct tagMSG {
-//     HWND hwnd;
-//     UINT message;
-//     WPARAM wParam;
-//     LPARAM lParam;
-//     DWORD time;
-//     POINT pt;
-// } MSG;
-
-// typedef MSG *               LPMSG;
-
-// ///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #define CW_USEDEFAULT       ((int)0x80000000)
 
@@ -108,7 +77,8 @@ typedef LARGE_INTEGER * PLARGE_INTEGER;
 #define WS_ICONIC           WS_MINIMIZE
 #define WS_SIZEBOX          WS_THICKFRAME
 #define WS_TILEDWINDOW      WS_OVERLAPPEDWINDOW
-#define WS_OVERLAPPEDWINDOW (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)
+#define WS_OVERLAPPEDWINDOW (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | \
+                             WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)
 #define WS_POPUPWINDOW      (WS_POPUP | WS_BORDER | WS_SYSMENU)
 #define WS_CHILDWINDOW      (WS_CHILD)
 
@@ -174,73 +144,19 @@ typedef LARGE_INTEGER * PLARGE_INTEGER;
 
 #define VK_ESCAPE             0x1B
 
-// ///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-// typedef LRESULT (__stdcall* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
-
-// typedef struct WNDCLASS {
-//   UINT style;
-//   WNDPROC lpfnWndProc;
-//   int cbClsExtra;
-//   int cbWndExtra;
-//   HINSTANCE hInstance;
-//   HICON hIcon;
-//   HCURSOR hCursor;
-//   HBRUSH hbrBackground;
-//   LPCSTR lpszMenuMane;
-//   LPCSTR lpszClassName;
-// } WNDCLASSA, WNDCLASS;
-
-// int __stdcall WinMain(void *, void *, const char *, int);
-
-// #define GetModuleHandle GetModuleHandleA
-// HMODULE __stdcall GetModuleHandleA(LPCSTR);
-
-// #define CreateWindow CreateWindowExA
-// HWND __stdcall CreateWindowExA(DWORD, LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HWND, HMENU, HINSTANCE, LPVOID);
-
-// #define ShowWindow ShowWindow
-// BOOL ShowWindow(HWND, int);
-
-// BOOL UpdateWindow(HWND);
-
-// #define DefWindowProc DefWindowProcA
-// LRESULT DefWindowProcA(HWND, UINT, WPARAM, LPARAM);
-
-// #define RegisterClass RegisterClassA
-// ATOM RegisterClassA(const WNDCLASS *);
-
-// #define GetMessag GetMessageA
-// BOOL GetMessageA(LPMSG, HWND, UINT, UINT);
-
-// BOOL TranslateMessage(const MSG *);
-
-// #define DispatchMessage DispatchMessageA
-// LRESULT DispatchMessageA(const MSG *);
-
-// #define PeekMessage PeekMessageA
-// BOOL PeekMessageA(LPMSG, HWND, UINT, UINT, UINT);
-
-// #define MessageBox MessageBoxA
-// int __stdcall MessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
-
-// int GetSystemMetrics(int);
-
-// LPVOID VirtualAlloc(LPVOID, SIZE_T, DWORD, DWORD);
-
-// #define CreateFile CreateFileA
-// HANDLE CreateFileA(LPCTSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
-
-// #define GetFileSize GetFileSizeEx
-// BOOL __stdcall GetFileSizeEx(HANDLE, PLARGE_INTEGER);
-
-// BOOL CloseHandle(HANDLE);
-// BOOL ReadFile(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
-// BOOL WriteFile(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
-
-// BOOL VirtualFree(LPVOID, SIZE_T, DWORD);
-// BOOL DestroyWindow(HWND);
-// BOOL PostQuitMessage(HWND);
-// void ExitProcess(UINT);
+typedef struct {
+  u32 style;
+  w32windowproc lpfnWndProc;
+  int cbClsExtra;
+  int cbWndExtra;
+  void *hInstance;
+  void *hIcon;
+  void *hCursor;
+  void *hbrBackground;
+  char *lpszMenuMane;
+  char *lpszClassName;
+} w32windowclass;
 
 #endif

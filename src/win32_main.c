@@ -17,13 +17,13 @@ result debug_platform_read_entire_file(const char *file_name) {
     result r = {0};
     void *h = CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h != INVALID_HANDLE_VALUE) {
-        LARGE_INTEGER file_size;
+        large_integer file_size;
         if (GetFileSize(h, &file_size)) {
             u32 file_size_32 = safe_truncate_u64(file_size.QuadPart);
             void *data = VirtualAlloc(0, file_size_32,
                                       MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
             if (data) {
-                DWORD bytes_read;
+                u32 bytes_read;
                 if (ReadFile(h, data, (u32)file_size.QuadPart, &bytes_read, 0) && file_size_32 == bytes_read) {
                     r.size = file_size_32;
                     r.data = data;
@@ -52,9 +52,9 @@ b32 debug_platform_write_entire_file(const char *file_name, u32 size, void *ptr)
     return ok;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-W32(i64) win32_window_proc(void *h, u32 m, void *l, u32 w) {
+void *win32_window_proc(void *h, u32 m, void *l, void *w) {
     switch (m) {
         case WM_CLOSE: {
             DestroyWindow(h);
@@ -78,7 +78,7 @@ void *test_alloc(i64 size, void *context) {
 int __stdcall WinMain(void *instance, void *prev_instance, const char *command_line, int show_code) {
     (void)instance; (void)prev_instance; (void)command_line; (void)show_code;
 
-    WNDCLASSA wc = {0, win32_window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
+    w32windowclass wc = {0, win32_window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
 
     if (!RegisterClass(&wc)) {
         MessageBox(0, "Failed to register window class", "Error", 0);
@@ -114,7 +114,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     int window_position_x = (screen_width - WINDOW_WIDTH) / 2;
     int window_position_y = (screen_height - WINDOW_HEIGHT) / 2;
 
-    HWND window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+    w32window window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                                window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT,
                                0, 0, 0, 0);
     if (!window) {
@@ -122,7 +122,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         return 1;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     u64 ba = TB(4);
     void *base_address = (void *)ba;
@@ -137,14 +137,14 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     gm.is_initialized = 1;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     input_state input = {0};
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     for (;;) {
-        MSG msg;
+        w32msg msg;
         while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
                 return 0;
@@ -181,7 +181,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 }
 
 void WinMainCRTStartup(void) {
-    HINSTANCE handle = GetModuleHandle(0);
+    void *handle = GetModuleHandle(0);
     int r = WinMain(handle, 0, 0, 0);
     ExitProcess(r);
 }
