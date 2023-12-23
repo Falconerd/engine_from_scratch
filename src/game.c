@@ -19,7 +19,6 @@ typedef struct game_state {
 void game_update_and_render(game_memory *memory, input_state *input) {
 
     ASSERT(sizeof(game_state) <= memory->permanent_storage_size);
-
     game_state *state = memory->permanent_storage;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,4 +32,3 @@ void game_update_and_render(game_memory *memory, input_state *input) {
 
     state->frame += 1;
 }
-

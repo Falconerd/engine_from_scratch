@@ -39,18 +39,13 @@ typedef __int64             i64;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef BUILD_EXTERNAL
-
+// If the size is > 0, then we can assume all is OK.
+// EG: File read result: size = bytes read. Data is the bytes.
+// EG: Perform some operation that may fail, size = 1 (success), data is the passed in argument.
 typedef struct {
-    u32 size;
+    u64 size;
     void *data;
-} read_file_result;
-
-read_file_result debug_platform_read_entire_file(const char *path);
-void debug_platform_free_file_memory(void *ptr);
-b32 debug_platform_write_entire_file(const char *path, u64 size, void *ptr);
-
-#endif
+} result;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

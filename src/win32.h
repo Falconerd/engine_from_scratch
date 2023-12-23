@@ -116,6 +116,8 @@ typedef MSG *               LPMSG;
 #define WM_MOVE             0x0003
 #define WM_SIZE             0x0005
 #define WM_ACTIVATE         0x0006
+#define WM_CLOSE            0x0010
+#define WM_QUIT             0x0012
 
 #define WA_INACTIVE         0
 #define WA_ACTIVE           1
@@ -187,6 +189,8 @@ typedef struct WNDCLASS {
   LPCSTR lpszClassName;
 } WNDCLASSA, WNDCLASS;
 
+int __stdcall WinMain(void *, void *, const char *, int);
+
 #define GetModuleHandle GetModuleHandleA
 HMODULE __stdcall GetModuleHandleA(LPCSTR);
 
@@ -231,5 +235,10 @@ BOOL __stdcall GetFileSizeEx(HANDLE, PLARGE_INTEGER);
 BOOL CloseHandle(HANDLE);
 BOOL ReadFile(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
 BOOL WriteFile(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
+
+BOOL VirtualFree(LPVOID, SIZE_T, DWORD);
+BOOL DestroyWindow(HWND);
+BOOL PostQuitMessage(HWND);
+void ExitProcess(UINT);
 
 #endif
