@@ -5,7 +5,7 @@
 
     Example usage:
         allocator a = ...;
-        s64 capacity = 8;
+        i64 capacity = 8;
         int *arr = df_array(int, capacity, a);
 
         df_array_push(x, 42);
@@ -46,14 +46,14 @@
 // For convenience, we can just keep a header struct type here.
 // It's also nice to be able to cast in the debugger.
 typedef struct {
-    s64 capacity;
-    s64 length;
+    i64 capacity;
+    i64 length;
     allocator a;
 } df_array_h;
 
 #define df_array(t, a) (t *)df_array_fn(sizeof(t), 8, a)
 
-void *df_array_fn(s64 item_size, s64 capacity, allocator a) {
+void *df_array_fn(i64 item_size, i64 capacity, allocator a) {
     u8 *mem = a.alloc(item_size * capacity + sizeof(df_array_h), a.context);
     if (!mem) {
         return 0;
@@ -69,13 +69,13 @@ void *df_array_fn(s64 item_size, s64 capacity, allocator a) {
 
 #define df_array_header(a) ((df_array_h *)(a) - 1)
 
-void *df_array_ensure_capacity_fn(void *a, s64 item_count, s64 item_size) {
+void *df_array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
     df_array_h *h = df_array_header(a);
-    s64 desired_capacity = h->length + item_count;
+    i64 desired_capacity = h->length + item_count;
     if (h->capacity < desired_capacity) {
 
         // Allocate enough space.
-        s64 new_capacity = h->capacity * 2;
+        i64 new_capacity = h->capacity * 2;
         while (new_capacity < desired_capacity) {
             new_capacity *= 2;
             if (new_capacity < h->capacity) {
@@ -83,8 +83,8 @@ void *df_array_ensure_capacity_fn(void *a, s64 item_count, s64 item_size) {
             }
         }
 
-        s64 old_length = sizeof(df_array_h) + h->length * item_size;
-        s64 size = sizeof(df_array_h) + new_capacity * item_size;
+        i64 old_length = sizeof(df_array_h) + h->length * item_size;
+        i64 size = sizeof(df_array_h) + new_capacity * item_size;
         void *new_mem = h->a.alloc(size, h->a.context);
         if (!new_mem) {
             return 0;
@@ -97,7 +97,7 @@ void *df_array_ensure_capacity_fn(void *a, s64 item_count, s64 item_size) {
         // Only free if a free function is available.
         // Sometimes memory will be managed externally - e.g. scratch buffers.
         if (h->a.free) {
-            s64 old_size = sizeof(df_array_h) + h->length * item_size;
+            i64 old_size = sizeof(df_array_h) + h->length * item_size;
             h->a.free(old_size, h, h->a.context);
         }
 
@@ -114,7 +114,7 @@ void *df_array_ensure_capacity_fn(void *a, s64 item_count, s64 item_size) {
     (a) = df_array_ensure_capacity_fn(a, 1, sizeof(v)), \
     (a)[df_array_header(a)->length++] = (v))
 
-void df_array_put_fn(df_array_h *h, s64 item_size, void *item) {
+void df_array_put_fn(df_array_h *h, i64 item_size, void *item) {
     if (h->capacity == h->length) {
         // TODO: resize
         // h = df_array_resize(h) as memory location may change.

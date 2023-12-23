@@ -7,7 +7,7 @@
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 void debug_platform_free_file_memory(void *ptr) {
     VirtualFree(ptr, 0, MEM_RELEASE);
@@ -20,7 +20,8 @@ result debug_platform_read_entire_file(const char *file_name) {
         LARGE_INTEGER file_size;
         if (GetFileSize(h, &file_size)) {
             u32 file_size_32 = safe_truncate_u64(file_size.QuadPart);
-            void *data = VirtualAlloc(0, file_size_32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+            void *data = VirtualAlloc(0, file_size_32,
+                                      MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
             if (data) {
                 DWORD bytes_read;
                 if (ReadFile(h, data, (u32)file_size.QuadPart, &bytes_read, 0) && file_size_32 == bytes_read) {
@@ -69,8 +70,9 @@ LRESULT __stdcall win32_window_proc(HWND h, UINT m, WPARAM l, LPARAM w) {
 }
 
 #include "df_array.h"
+#include "df_string.h"
 
-void *test_alloc(s64 size, void *context) {
+void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
@@ -101,6 +103,10 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     df_array_put(arr, 23);
     df_array_put(arr, 13);
     df_array_put(arr, 17);
+
+    s8 s = s8("This is a test string.");
+
+    s8 s2 = s8_from_str((const char *)s.data, a);
 
     __debugbreak();
 

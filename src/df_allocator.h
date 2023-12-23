@@ -4,8 +4,8 @@
 // All my libraries use this allocator interface.
 
 typedef struct {
-    void *(*alloc)(s64, void *context);
-    void (*free)(s64, void *, void *context);
+    void *(*alloc)(i64, void *context);
+    void (*free)(i64, void *, void *context);
     void *context;
 } allocator;
 
