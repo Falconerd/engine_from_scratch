@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
     const char *optimization = release ? "/O2" : "/Zi";
     // NOTE: Not sure if this is the best way to do this, but it works fine.
     const char *release_header = release ? " src\\release.c" : "";
+    //                                      ^ this space is intentional.
     sprintf(buf, "%s %s %s%s src\\win32_main.c -Fe:_main.exe -link %s %s", CC, CFLAGS, optimization, release_header, LINK_ARGS, LIBS);
     printf("%s\n", buf);
     system(buf);
