@@ -23,6 +23,25 @@ void game_update_and_render(game_memory *memory, input_state *input) {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    f32 a = turn_y(0.f);    // expect 1
+    f32 b = turn_y(0.125f); // expect ~0.7071
+    f32 c = turn_y(0.25f);  // expect 0
+    f32 d = turn_y(0.375f); // expect ~-0.7071
+    f32 e = turn_y(0.5f);   // expect -1
+    f32 f = turn_y(0.625f); // expect ~-0.7071
+    f32 g = turn_y(0.75f);  // expect 0
+    f32 h = turn_y(0.875f); // expect ~0.7071
+    f32 i = turn_y(1.f);    // expect 1
+    (void)a;
+    (void)b;
+    (void)c;
+    (void)d;
+    (void)e;
+    (void)f;
+    (void)g;
+    (void)h;
+    (void)i;
+
     if (input->forward.down) {
         MessageBox(0, "ARST", "ARST", 0);
         input->forward.down = 0;

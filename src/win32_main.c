@@ -1,7 +1,9 @@
 #include "common.h"
 #include "win32.h"
-#include "game.c"
+#include "math.c"
 #include "util.c"
+
+#include "game.c"
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
