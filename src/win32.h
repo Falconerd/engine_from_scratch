@@ -1,45 +1,47 @@
 #ifndef DRF_WIN32_H
 #define DRF_WIN32_H
 
-#define CONST const
+#define W32(r) __declspec(dllimport) r __stdcall
 
-typedef int                 BOOL;
-typedef long                LONG;
-typedef char                CHAR;
-typedef void *              PVOID;
-typedef void *              LPVOID;
-typedef void *              LPCVOID;
-typedef PVOID               HANDLE;
-typedef HANDLE              HINSTANCE;
-typedef HINSTANCE           HMODULE;
-typedef CONST CHAR *        LPCSTR;
-typedef unsigned int        UINT;
-typedef HANDLE              HWND;
-typedef LPCSTR              LPCTSTR;
-typedef unsigned short      WORD;
-typedef WORD                ATOM;
-typedef unsigned long       DWORD;
-typedef HANDLE              HMENU;
-typedef __int64             LONG_PTR;
-typedef unsigned __int64    ULONG_PTR;
-typedef LONG_PTR            LRESULT;
-typedef unsigned __int64    UINT_PTR;
-typedef UINT_PTR            WPARAM;
-typedef LONG_PTR            LPARAM;
-typedef HANDLE              HICON;
-typedef HICON               HCURSOR;
-typedef HICON               HBRUSH;
-typedef ULONG_PTR           SIZE_T;
-typedef DWORD *             LPDWORD;
-typedef __int64             LONGLONG;
+// #define CONST const
 
-// FIXME
-typedef void * LPSECURITY_ATTRIBUTES;
+// typedef int                 BOOL;
+// typedef long                LONG;
+// typedef char                CHAR;
+// typedef void *              PVOID;
+// typedef void *              LPVOID;
+// typedef void *              LPCVOID;
+// typedef PVOID               HANDLE;
+// typedef HANDLE              HINSTANCE;
+// typedef HINSTANCE           HMODULE;
+// typedef CONST CHAR *        LPCSTR;
+// typedef unsigned int        UINT;
+// typedef HANDLE              HWND;
+// typedef LPCSTR              LPCTSTR;
+// typedef unsigned short      WORD;
+// typedef WORD                ATOM;
+// typedef unsigned long       DWORD;
+// typedef HANDLE              HMENU;
+// typedef __int64             LONG_PTR;
+// typedef unsigned __int64    ULONG_PTR;
+// typedef LONG_PTR            LRESULT;
+// typedef unsigned __int64    UINT_PTR;
+// typedef UINT_PTR            WPARAM;
+// typedef LONG_PTR            LPARAM;
+// typedef HANDLE              HICON;
+// typedef HICON               HCURSOR;
+// typedef HICON               HBRUSH;
+// typedef ULONG_PTR           SIZE_T;
+// typedef DWORD *             LPDWORD;
+// typedef __int64             LONGLONG;
+
+// // FIXME
+// typedef void * LPSECURITY_ATTRIBUTES;
 
 typedef union _LARGE_INTEGER {
   struct {
-    DWORD LowPart;
-    LONG  HighPart;
+    u32 LowPart;
+    i32  HighPart;
   } DUMMYSTRUCTNAME;
   struct {
     DWORD LowPart;
@@ -49,36 +51,36 @@ typedef union _LARGE_INTEGER {
 } LARGE_INTEGER;
 typedef LARGE_INTEGER * PLARGE_INTEGER;
 
-typedef struct _OVERLAPPED {
-  ULONG_PTR Internal;
-  ULONG_PTR InternalHigh;
-  union {
-    struct {
-      DWORD Offset;
-      DWORD OffsetHigh;
-    } DUMMYSTRUCTNAME;
-    PVOID Pointer;
-  } DUMMYUNIONNAME;
-  HANDLE    hEvent;
-} OVERLAPPED, *LPOVERLAPPED;
+// typedef struct _OVERLAPPED {
+//   ULONG_PTR Internal;
+//   ULONG_PTR InternalHigh;
+//   union {
+//     struct {
+//       DWORD Offset;
+//       DWORD OffsetHigh;
+//     } DUMMYSTRUCTNAME;
+//     PVOID Pointer;
+//   } DUMMYUNIONNAME;
+//   HANDLE    hEvent;
+// } OVERLAPPED, *LPOVERLAPPED;
 
-typedef struct tagPOINT {
-    LONG x;
-    LONG y;
-} POINT;
+// typedef struct tagPOINT {
+//     LONG x;
+//     LONG y;
+// } POINT;
 
-typedef struct tagMSG {
-    HWND hwnd;
-    UINT message;
-    WPARAM wParam;
-    LPARAM lParam;
-    DWORD time;
-    POINT pt;
-} MSG;
+// typedef struct tagMSG {
+//     HWND hwnd;
+//     UINT message;
+//     WPARAM wParam;
+//     LPARAM lParam;
+//     DWORD time;
+//     POINT pt;
+// } MSG;
 
-typedef MSG *               LPMSG;
+// typedef MSG *               LPMSG;
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define CW_USEDEFAULT       ((int)0x80000000)
 
@@ -172,73 +174,73 @@ typedef MSG *               LPMSG;
 
 #define VK_ESCAPE             0x1B
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef LRESULT (__stdcall* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
+// typedef LRESULT (__stdcall* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 
-typedef struct WNDCLASS {
-  UINT style;
-  WNDPROC lpfnWndProc;
-  int cbClsExtra;
-  int cbWndExtra;
-  HINSTANCE hInstance;
-  HICON hIcon;
-  HCURSOR hCursor;
-  HBRUSH hbrBackground;
-  LPCSTR lpszMenuMane;
-  LPCSTR lpszClassName;
-} WNDCLASSA, WNDCLASS;
+// typedef struct WNDCLASS {
+//   UINT style;
+//   WNDPROC lpfnWndProc;
+//   int cbClsExtra;
+//   int cbWndExtra;
+//   HINSTANCE hInstance;
+//   HICON hIcon;
+//   HCURSOR hCursor;
+//   HBRUSH hbrBackground;
+//   LPCSTR lpszMenuMane;
+//   LPCSTR lpszClassName;
+// } WNDCLASSA, WNDCLASS;
 
-int __stdcall WinMain(void *, void *, const char *, int);
+// int __stdcall WinMain(void *, void *, const char *, int);
 
-#define GetModuleHandle GetModuleHandleA
-HMODULE __stdcall GetModuleHandleA(LPCSTR);
+// #define GetModuleHandle GetModuleHandleA
+// HMODULE __stdcall GetModuleHandleA(LPCSTR);
 
-#define CreateWindow CreateWindowExA
-HWND __stdcall CreateWindowExA(DWORD, LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HWND, HMENU, HINSTANCE, LPVOID);
+// #define CreateWindow CreateWindowExA
+// HWND __stdcall CreateWindowExA(DWORD, LPCTSTR, LPCTSTR, DWORD, int, int, int, int, HWND, HMENU, HINSTANCE, LPVOID);
 
-#define ShowWindow ShowWindow
-BOOL ShowWindow(HWND, int);
+// #define ShowWindow ShowWindow
+// BOOL ShowWindow(HWND, int);
 
-BOOL UpdateWindow(HWND);
+// BOOL UpdateWindow(HWND);
 
-#define DefWindowProc DefWindowProcA
-LRESULT DefWindowProcA(HWND, UINT, WPARAM, LPARAM);
+// #define DefWindowProc DefWindowProcA
+// LRESULT DefWindowProcA(HWND, UINT, WPARAM, LPARAM);
 
-#define RegisterClass RegisterClassA
-ATOM RegisterClassA(const WNDCLASS *);
+// #define RegisterClass RegisterClassA
+// ATOM RegisterClassA(const WNDCLASS *);
 
-#define GetMessag GetMessageA
-BOOL GetMessageA(LPMSG, HWND, UINT, UINT);
+// #define GetMessag GetMessageA
+// BOOL GetMessageA(LPMSG, HWND, UINT, UINT);
 
-BOOL TranslateMessage(const MSG *);
+// BOOL TranslateMessage(const MSG *);
 
-#define DispatchMessage DispatchMessageA
-LRESULT DispatchMessageA(const MSG *);
+// #define DispatchMessage DispatchMessageA
+// LRESULT DispatchMessageA(const MSG *);
 
-#define PeekMessage PeekMessageA
-BOOL PeekMessageA(LPMSG, HWND, UINT, UINT, UINT);
+// #define PeekMessage PeekMessageA
+// BOOL PeekMessageA(LPMSG, HWND, UINT, UINT, UINT);
 
-#define MessageBox MessageBoxA
-int __stdcall MessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
+// #define MessageBox MessageBoxA
+// int __stdcall MessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
 
-int GetSystemMetrics(int);
+// int GetSystemMetrics(int);
 
-LPVOID VirtualAlloc(LPVOID, SIZE_T, DWORD, DWORD);
+// LPVOID VirtualAlloc(LPVOID, SIZE_T, DWORD, DWORD);
 
-#define CreateFile CreateFileA
-HANDLE CreateFileA(LPCTSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
+// #define CreateFile CreateFileA
+// HANDLE CreateFileA(LPCTSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, DWORD, DWORD, HANDLE);
 
-#define GetFileSize GetFileSizeEx
-BOOL __stdcall GetFileSizeEx(HANDLE, PLARGE_INTEGER);
+// #define GetFileSize GetFileSizeEx
+// BOOL __stdcall GetFileSizeEx(HANDLE, PLARGE_INTEGER);
 
-BOOL CloseHandle(HANDLE);
-BOOL ReadFile(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
-BOOL WriteFile(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
+// BOOL CloseHandle(HANDLE);
+// BOOL ReadFile(HANDLE, LPVOID, DWORD, LPDWORD, LPOVERLAPPED);
+// BOOL WriteFile(HANDLE, LPCVOID, DWORD, LPDWORD, LPOVERLAPPED);
 
-BOOL VirtualFree(LPVOID, SIZE_T, DWORD);
-BOOL DestroyWindow(HWND);
-BOOL PostQuitMessage(HWND);
-void ExitProcess(UINT);
+// BOOL VirtualFree(LPVOID, SIZE_T, DWORD);
+// BOOL DestroyWindow(HWND);
+// BOOL PostQuitMessage(HWND);
+// void ExitProcess(UINT);
 
 #endif

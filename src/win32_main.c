@@ -15,7 +15,7 @@ void debug_platform_free_file_memory(void *ptr) {
 
 result debug_platform_read_entire_file(const char *file_name) {
     result r = {0};
-    HANDLE h = CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    void *h = CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h != INVALID_HANDLE_VALUE) {
         LARGE_INTEGER file_size;
         if (GetFileSize(h, &file_size)) {
@@ -40,9 +40,9 @@ result debug_platform_read_entire_file(const char *file_name) {
 
 b32 debug_platform_write_entire_file(const char *file_name, u32 size, void *ptr) {
     b32 ok = 0;
-    HANDLE h = CreateFile(file_name, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
+    void *h = CreateFile(file_name, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
     if (h != INVALID_HANDLE_VALUE) {
-        DWORD bytes_written;
+        u32 bytes_written;
         if (WriteFile(h, ptr, size, &bytes_written, 0)) {
             ok = bytes_written == size;
         }
@@ -54,7 +54,7 @@ b32 debug_platform_write_entire_file(const char *file_name, u32 size, void *ptr)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-LRESULT __stdcall win32_window_proc(HWND h, UINT m, WPARAM l, LPARAM w) {
+W32(i64) win32_window_proc(void *h, u32 m, void *l, u32 w) {
     switch (m) {
         case WM_CLOSE: {
             DestroyWindow(h);
@@ -69,8 +69,7 @@ LRESULT __stdcall win32_window_proc(HWND h, UINT m, WPARAM l, LPARAM w) {
     }
 }
 
-#include "df_array.h"
-#include "df_string.h"
+#include "df.h"
 
 void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
