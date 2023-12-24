@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-typedef void * (__stdcall *w32windowproc)(void *, u32, void *, void *);
+typedef i64 (__stdcall *w32windowproc)(void *, u32, u64, i64);
 typedef void * w32window;
 
 typedef union _LARGE_INTEGER {
@@ -26,10 +26,11 @@ typedef struct {
 typedef struct {
     void *hwnd;
     u32 message;
-    i32 wParam;
-    void *lParam;
+    u64 wParam;
+    i64 lParam;
     u32 time;
     w32point pt;
+    u32 lPrivate;
 } w32msg;
 
 #define W32(r) __declspec(dllimport) r __stdcall
@@ -37,7 +38,7 @@ typedef struct {
 W32(byte *) CreateFileA(const char *, u32, u32, void *, u32, u32, void *);
 W32(byte *) VirtualAlloc(void *, size, u32, u32);
 #define DefWindowProc DefWindowProcA
-W32(void *) DefWindowProcA(void *, u32, void *, void *);
+W32(i64) DefWindowProcA(void *, u32, u64, i64);
 #define CreateWindow CreateWindowExA
 W32(void *) CreateWindowExA(u32, void *, void *, u32, i32, i32, i32, i32,
                             void *, void *, void *, void *);
@@ -48,9 +49,9 @@ W32(i32) MessageBoxA(void *, void *, void *, u32);
 #define RegisterClass RegisterClassA
 W32(u16) RegisterClassA(void *);
 #define PeekMessage PeekMessageA
-W32(b32) PeekMessageA(w32msg *, void *, u32, u32, u32);
+W32(b32) PeekMessageA(w32msg *, w32window, u32, u32, u32);
 #define DispatchMessage DispatchMessageA
-W32(void *) DispatchMessageA(w32msg *);
+W32(i64) DispatchMessageA(w32msg *);
 #define GetFileSize GetFileSizeEx
 W32(i32) GetFileSizeEx(void *, large_integer *);
 W32(b32) ReadFile(void *, void *, u32, u32 *, void *);

@@ -11,7 +11,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void *win32_window_proc(void *h, u32 m, void *l, void *w) {
+i64 win32_window_proc(void *h, u32 m, u64 w, i64 l) {
     switch (m) {
         case WM_CLOSE: {
             DestroyWindow(h);
@@ -22,7 +22,7 @@ void *win32_window_proc(void *h, u32 m, void *l, void *w) {
             return 0;
         }
         default:
-            return DefWindowProc(h, m, l, w);
+            return DefWindowProc(h, m, w, l);
     }
 }
 
@@ -40,35 +40,6 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         MessageBox(0, "Failed to register window class", "Error", 0);
         return 1;
     }
-
-    allocator a = {
-        .alloc = test_alloc,
-    };
-
-    int *arr = array(int, a);
-    array_put(arr, 42);
-    array_put(arr, 23);
-    array_put(arr, 13);
-    array_put(arr, 17);
-    array_put(arr, 42);
-    array_put(arr, 23);
-    array_put(arr, 13);
-    array_put(arr, 17);
-    array_put(arr, 42);
-    array_put(arr, 23);
-    array_put(arr, 13);
-    array_put(arr, 17);
-
-    s8 s = s8("This is a test string.");
-
-    s8 s2 = s8fromstr((const char *)s.data, a);
-
-    osfile f = osreadfile(__FILE__, a);
-
-    (void)s2;
-    (void)f;
-        
-    __debugbreak();
 
     int screen_width = GetSystemMetrics(SM_CXSCREEN);
     int screen_height = GetSystemMetrics(SM_CYSCREEN);
