@@ -20,8 +20,7 @@ result debug_platform_read_entire_file(const char *file_name) {
         large_integer file_size;
         if (GetFileSize(h, &file_size)) {
             u32 file_size_32 = safe_truncate_u64(file_size.QuadPart);
-            void *data = VirtualAlloc(0, file_size_32,
-                                      MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+            void *data = VirtualAlloc(0, file_size_32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
             if (data) {
                 u32 bytes_read;
                 if (ReadFile(h, data, (u32)file_size.QuadPart, &bytes_read, 0) && file_size_32 == bytes_read) {
@@ -89,23 +88,23 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         .alloc = test_alloc,
     };
 
-    int *arr = df_array(int, a);
-    df_array_put(arr, 42);
-    df_array_put(arr, 23);
-    df_array_put(arr, 13);
-    df_array_put(arr, 17);
-    df_array_put(arr, 42);
-    df_array_put(arr, 23);
-    df_array_put(arr, 13);
-    df_array_put(arr, 17);
-    df_array_put(arr, 42);
-    df_array_put(arr, 23);
-    df_array_put(arr, 13);
-    df_array_put(arr, 17);
+    int *arr = array(int, a);
+    array_put(arr, 42);
+    array_put(arr, 23);
+    array_put(arr, 13);
+    array_put(arr, 17);
+    array_put(arr, 42);
+    array_put(arr, 23);
+    array_put(arr, 13);
+    array_put(arr, 17);
+    array_put(arr, 42);
+    array_put(arr, 23);
+    array_put(arr, 13);
+    array_put(arr, 17);
 
     s8 s = s8("This is a test string.");
 
-    s8 s2 = s8_from_str((const char *)s.data, a);
+    s8 s2 = s8fromstr((const char *)s.data, a);
 
     __debugbreak();
 
@@ -114,9 +113,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     int window_position_x = (screen_width - WINDOW_WIDTH) / 2;
     int window_position_y = (screen_height - WINDOW_HEIGHT) / 2;
 
-    w32window window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                               window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT,
-                               0, 0, 0, 0);
+    w32window window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE, window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, 0);
     if (!window) {
         MessageBox(0, "Failed to create window", "Error", 0);
         return 1;

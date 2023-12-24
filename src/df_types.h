@@ -11,4 +11,5 @@ typedef float               f32;
 typedef double              f64;
 typedef char                byte;
 typedef __int64             size;
+typedef unsigned __int64    uptr;
 #endif

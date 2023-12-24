@@ -4,7 +4,7 @@
     It may reallocate when items are pushed into it.
 
     Example usage:
-        allocator a = ...;
+        df_allocator a = ...;
         i64 capacity = 8;
         int *arr = df_array(int, capacity, a);
 
@@ -43,17 +43,22 @@
 #include "df_allocator.h"
 #include "df_mem.h"
 
+#ifndef DF_STRING_ENABLE_PREFIX
+#define array df_array
+#define array_put df_array_put
+#endif
+
 // For convenience, we can just keep a header struct type here.
 // It's also nice to be able to cast in the debugger.
 typedef struct {
     i64 capacity;
     i64 length;
-    allocator a;
+    df_allocator a;
 } df_array_h;
 
 #define df_array(t, a) (t *)df_array_fn(sizeof(t), 8, a)
 
-void *df_array_fn(i64 item_size, i64 capacity, allocator a) {
+void *df_array_fn(i64 item_size, i64 capacity, df_allocator a) {
     u8 *mem = a.alloc(item_size * capacity + sizeof(df_array_h), a.context);
     if (!mem) {
         return 0;
@@ -91,7 +96,7 @@ void *df_array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
         }
 
         // Copy data to new allocation.
-        df_mem_copy(new_mem, h, old_length);
+        df_memcopy(new_mem, h, old_length);
 
         // Naively try to free the old array.
         // Only free if a free function is available.
@@ -122,7 +127,7 @@ void df_array_put_fn(df_array_h *h, i64 item_size, void *item) {
 
     u8 *dest = (u8 *)h;
     dest += sizeof(df_array_h) + item_size * h->length;
-    df_mem_copy(dest, item, item_size);
+    df_memcopy(dest, item, item_size);
 }
 
 #endif
