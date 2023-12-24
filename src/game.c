@@ -1,4 +1,5 @@
 #include "common.h"
+#include "win32.h"
 
 typedef struct {
     int half_transitions;

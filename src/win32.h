@@ -1,5 +1,7 @@
-#ifndef DF_WIN32_H
-#define DF_WIN32_H
+#ifndef WIN32_H
+#define WIN32_H
+
+#include "common.h"
 
 typedef void * (__stdcall *w32windowproc)(void *, u32, void *, void *);
 typedef void * w32window;
@@ -52,6 +54,11 @@ W32(void *) DispatchMessageA(w32msg *);
 #define GetFileSize GetFileSizeEx
 W32(i32) GetFileSizeEx(void *, large_integer *);
 W32(b32) ReadFile(void *, void *, u32, u32 *, void *);
+W32(b32) CloseHandle(void *);
+W32(b32) DestroyWindow(void *);
+W32(b32) PostQuitMessage(void *);
+W32(void) ExitProcess(u32);
+int GetSystemMetrics(int);
 
 ////////////////////////////////////////////////////////////////////////////////
 

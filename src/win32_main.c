@@ -1,5 +1,9 @@
-#include "df.h"
+#include "common.h"
+#include "mem.c"
+#include "os.c"
+#include "array.c"
 #include "math.c"
+#include "s8.c"
 
 #include "game.c"
 
@@ -23,6 +27,7 @@ void *win32_window_proc(void *h, u32 m, void *l, void *w) {
 }
 
 void *test_alloc(i64 size, void *context) {
+    (void)context;
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
@@ -59,6 +64,9 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     s8 s2 = s8fromstr((const char *)s.data, a);
 
     osfile f = osreadfile(__FILE__, a);
+
+    (void)s2;
+    (void)f;
         
     __debugbreak();
 

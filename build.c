@@ -17,7 +17,7 @@
     -stack...: Commit a larger stack.
 */
 #define LINK_ARGS "-nodefaultlib -subsystem:windows -stack:0x200000,200000"
-#define LIBS "kernel32.lib user32.lib"
+#define LIBS "kernel32.lib user32.lib opengl32.lib"
 
 int main(int argc, char *argv[]) {
     LARGE_INTEGER frequency, start, end;
