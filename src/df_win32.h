@@ -1,5 +1,5 @@
-#ifndef DRF_WIN32_H
-#define DRF_WIN32_H
+#ifndef DF_WIN32_H
+#define DF_WIN32_H
 
 typedef void * (__stdcall *w32windowproc)(void *, u32, void *, void *);
 typedef void * w32window;
@@ -15,6 +15,7 @@ typedef union _LARGE_INTEGER {
   } u;
   i64 QuadPart;
 } large_integer;
+
 typedef struct {
     i32 x;
     i32 y;
@@ -48,6 +49,9 @@ W32(u16) RegisterClassA(void *);
 W32(b32) PeekMessageA(w32msg *, void *, u32, u32, u32);
 #define DispatchMessage DispatchMessageA
 W32(void *) DispatchMessageA(w32msg *);
+#define GetFileSize GetFileSizeEx
+W32(i32) GetFileSizeEx(void *, large_integer *);
+W32(b32) ReadFile(void *, void *, u32, u32 *, void *);
 
 ////////////////////////////////////////////////////////////////////////////////
 

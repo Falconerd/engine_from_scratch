@@ -1,57 +1,11 @@
-#include "common.h"
-#include "win32.h"
+#include "df.h"
 #include "math.c"
-#include "util.c"
 
 #include "game.c"
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
-////////////////////////////////////////////////////////////////////////////////
-
-void debug_platform_free_file_memory(void *ptr) {
-    VirtualFree(ptr, 0, MEM_RELEASE);
-}
-
-result debug_platform_read_entire_file(const char *file_name) {
-    result r = {0};
-    void *h = CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-    if (h != INVALID_HANDLE_VALUE) {
-        large_integer file_size;
-        if (GetFileSize(h, &file_size)) {
-            u32 file_size_32 = safe_truncate_u64(file_size.QuadPart);
-            void *data = VirtualAlloc(0, file_size_32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-            if (data) {
-                u32 bytes_read;
-                if (ReadFile(h, data, (u32)file_size.QuadPart, &bytes_read, 0) && file_size_32 == bytes_read) {
-                    r.size = file_size_32;
-                    r.data = data;
-                } else {
-                    debug_platform_free_file_memory(data);
-                }
-            }
-        }
-        CloseHandle(h);
-    }
-
-    return r;
-}
-
-b32 debug_platform_write_entire_file(const char *file_name, u32 size, void *ptr) {
-    b32 ok = 0;
-    void *h = CreateFile(file_name, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-    if (h != INVALID_HANDLE_VALUE) {
-        u32 bytes_written;
-        if (WriteFile(h, ptr, size, &bytes_written, 0)) {
-            ok = bytes_written == size;
-        }
-        CloseHandle(h);
-    }
-
-    return ok;
-}
-
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void *win32_window_proc(void *h, u32 m, void *l, void *w) {
     switch (m) {
@@ -67,8 +21,6 @@ void *win32_window_proc(void *h, u32 m, void *l, void *w) {
             return DefWindowProc(h, m, l, w);
     }
 }
-
-#include "df.h"
 
 void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -106,6 +58,8 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     s8 s2 = s8fromstr((const char *)s.data, a);
 
+    osfile f = osreadfile(__FILE__, a);
+        
     __debugbreak();
 
     int screen_width = GetSystemMetrics(SM_CXSCREEN);
@@ -113,13 +67,14 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     int window_position_x = (screen_width - WINDOW_WIDTH) / 2;
     int window_position_y = (screen_height - WINDOW_HEIGHT) / 2;
 
-    w32window window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE, window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, 0);
+    w32window window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                                    window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, 0);
     if (!window) {
         MessageBox(0, "Failed to create window", "Error", 0);
         return 1;
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     u64 ba = TB(4);
     void *base_address = (void *)ba;
@@ -130,15 +85,15 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     gm.permanent_storage = VirtualAlloc(base_address, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     gm.transient_storage = ((u8 *)gm.permanent_storage) + gm.permanent_storage_size;
 
-    ASSERT(gm.permanent_storage && "Failed to allocate memory.");
+    assert(gm.permanent_storage && "Failed to allocate memory.");
 
     gm.is_initialized = 1;
 
-    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     input_state input = {0};
 
-    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (;;) {
         w32msg msg;

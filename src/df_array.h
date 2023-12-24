@@ -18,8 +18,7 @@
         assert(arr[2] == 13);
         assert(arr[3] == 17);
 
-    When df_array is invoked, size for the capacity plus a header is allocated
-    using the provided allocator.
+    When df_array is invoked, size for the capacity plus a header is allocated using the provided allocator.
 
     The header has this memory layout:
         bits | description
@@ -33,8 +32,7 @@
         | header   | items                    | remaining capacity
         | 40 bytes | item_size * length bytes | 
 
-    We don't have to keep the item size because operations will include a typed
-    parameter that we can use sizeof on.
+    We don't have to keep the item size because operations will include a typed parameter that we can use sizeof on.
 */
 #ifndef DF_ARRAY
 #define DF_ARRAY
@@ -103,7 +101,7 @@ void *df_array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
         // Sometimes memory will be managed externally - e.g. scratch buffers.
         if (h->a.free) {
             i64 old_size = sizeof(df_array_h) + h->length * item_size;
-            h->a.free(old_size, h, h->a.context);
+            h->a.free(old_size, h, a);
         }
 
         h = (df_array_h *)new_mem;

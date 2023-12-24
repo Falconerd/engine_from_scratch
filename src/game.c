@@ -1,3 +1,5 @@
+#include "common.h"
+
 typedef struct {
     int half_transitions;
     b32 down;
@@ -18,10 +20,10 @@ typedef struct game_state {
 
 void game_update_and_render(game_memory *memory, input_state *input) {
 
-    ASSERT(sizeof(game_state) <= memory->permanent_storage_size);
+    assert(sizeof(game_state) <= memory->permanent_storage_size);
     game_state *state = memory->permanent_storage;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     f32 a = turn_y(0.f);    // expect 1
     f32 b = turn_y(0.125f); // expect ~0.7071
@@ -47,7 +49,7 @@ void game_update_and_render(game_memory *memory, input_state *input) {
         input->forward.down = 0;
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     state->frame += 1;
 }
