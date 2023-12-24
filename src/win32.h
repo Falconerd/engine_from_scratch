@@ -3,10 +3,11 @@
 
 #include "common.h"
 
-typedef i64 (__stdcall *w32windowproc)(void *, u32, u64, i64);
-typedef void * w32window;
+typedef i64 (__stdcall *WindowProc)(void *, u32, u64, i64);
+typedef void * HWND;
+typedef void * HDC;
 
-typedef union _LARGE_INTEGER {
+typedef union {
   struct {
     u32 LowPart;
     i32 HighPart;
@@ -16,12 +17,12 @@ typedef union _LARGE_INTEGER {
     i32 HighPart;
   } u;
   i64 QuadPart;
-} large_integer;
+} LARGE_INTEGER;
 
 typedef struct {
     i32 x;
     i32 y;
-} w32point;
+} POINT;
 
 typedef struct {
     void *hwnd;
@@ -29,39 +30,53 @@ typedef struct {
     u64 wParam;
     i64 lParam;
     u32 time;
-    w32point pt;
+    POINT pt;
     u32 lPrivate;
-} w32msg;
+} MSG;
 
-#define W32(r) __declspec(dllimport) r __stdcall
-#define CreateFile CreateFileA
-W32(byte *) CreateFileA(const char *, u32, u32, void *, u32, u32, void *);
-W32(byte *) VirtualAlloc(void *, size, u32, u32);
-#define DefWindowProc DefWindowProcA
-W32(i64) DefWindowProcA(void *, u32, u64, i64);
-#define CreateWindow CreateWindowExA
-W32(void *) CreateWindowExA(u32, void *, void *, u32, i32, i32, i32, i32,
-                            void *, void *, void *, void *);
-#define GetModuleHandle GetModuleHandleA
-W32(void *) GetModuleHandleA(void *);
-#define MessageBox MessageBoxA
-W32(i32) MessageBoxA(void *, void *, void *, u32);
-#define RegisterClass RegisterClassA
-W32(u16) RegisterClassA(void *);
-#define PeekMessage PeekMessageA
-W32(b32) PeekMessageA(w32msg *, w32window, u32, u32, u32);
-#define DispatchMessage DispatchMessageA
-W32(i64) DispatchMessageA(w32msg *);
-#define GetFileSize GetFileSizeEx
-W32(i32) GetFileSizeEx(void *, large_integer *);
-W32(b32) ReadFile(void *, void *, u32, u32 *, void *);
-W32(b32) CloseHandle(void *);
-W32(b32) DestroyWindow(void *);
-W32(b32) PostQuitMessage(void *);
-W32(void) ExitProcess(u32);
-int GetSystemMetrics(int);
+typedef struct {
+  u32 style;
+  WindowProc lpfnWndProc;
+  int cbClsExtra;
+  int cbWndExtra;
+  void *hInstance;
+  void *hIcon;
+  void *hCursor;
+  void *hbrBackground;
+  char *lpszMenuMane;
+  char *lpszClassName;
+} WNDCLASSA;
 
-////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+    u16  nSize;
+    u16  nVersion;
+    u32 dwFlags;
+    byte  iPixelType;
+    byte  cColorBits;
+    byte  cRedBits;
+    byte  cRedShift;
+    byte  cGreenBits;
+    byte  cGreenShift;
+    byte  cBlueBits;
+    byte  cBlueShift;
+    byte  cAlphaBits;
+    byte  cAlphaShift;
+    byte  cAccumBits;
+    byte  cAccumRedBits;
+    byte  cAccumGreenBits;
+    byte  cAccumBlueBits;
+    byte  cAccumAlphaBits;
+    byte  cDepthBits;
+    byte  cStencilBits;
+    byte  cAuxBuffers;
+    byte  iLayerType;
+    byte  bReserved;
+    u32 dwLayerMask;
+    u32 dwVisibleMask;
+    u32 dwDamageMask;
+} PIXELFORMATDESCRIPTOR, *PPIXELFORMATDESCRIPTOR, *LPPIXELFORMATDESCRIPTOR;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define WS_OVERLAPPED       0x00000000L
 #define WS_POPUP            0x80000000L
@@ -71,8 +86,7 @@ int GetSystemMetrics(int);
 #define WS_THICKFRAME       0x00040000L
 #define WS_MINIMIZEBOX      0x00020000L
 #define WS_MAXIMIZEBOX      0x00010000L
-#define WS_OVERLAPPEDWINDOW (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | \
-                             WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)
+#define WS_OVERLAPPEDWINDOW (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)
 
 #define WM_DESTROY          0x0002
 #define WM_CLOSE            0x0010
@@ -108,19 +122,49 @@ int GetSystemMetrics(int);
 
 #define VK_ESCAPE             0x1B
 
-////////////////////////////////////////////////////////////////////////////////
+#define PFD_SUPPORT_OPENGL  0x00000020
+#define PFD_DRAW_TO_WINDOW  0x00000004
+#define PFD_DOUBLEBUFFER    0x00000001
 
-typedef struct {
-  u32 style;
-  w32windowproc lpfnWndProc;
-  int cbClsExtra;
-  int cbWndExtra;
-  void *hInstance;
-  void *hIcon;
-  void *hCursor;
-  void *hbrBackground;
-  char *lpszMenuMane;
-  char *lpszClassName;
-} w32windowclass;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define W32(r) __declspec(dllimport) r __stdcall
+#define CreateFile CreateFileA
+W32(byte *) CreateFileA(const char *, u32, u32, void *, u32, u32, void *);
+W32(byte *) VirtualAlloc(void *, size, u32, u32);
+#define DefWindowProc DefWindowProcA
+W32(i64) DefWindowProcA(void *, u32, u64, i64);
+#define CreateWindow CreateWindowExA
+W32(void *) CreateWindowExA(u32, void *, void *, u32, i32, i32, i32, i32,
+                            void *, void *, void *, void *);
+#define GetModuleHandle GetModuleHandleA
+W32(void *) GetModuleHandleA(void *);
+#define MessageBox MessageBoxA
+W32(i32) MessageBoxA(void *, void *, void *, u32);
+#define RegisterClass RegisterClassA
+W32(u16) RegisterClassA(void *);
+#define PeekMessage PeekMessageA
+W32(b32) PeekMessageA(MSG *, HWND, u32, u32, u32);
+#define DispatchMessage DispatchMessageA
+W32(i64) DispatchMessageA(MSG *);
+#define GetFileSize GetFileSizeEx
+W32(i32) GetFileSizeEx(void *, LARGE_INTEGER *);
+W32(b32) ReadFile(void *, void *, u32, u32 *, void *);
+W32(b32) CloseHandle(void *);
+W32(b32) DestroyWindow(void *);
+W32(b32) PostQuitMessage(void *);
+W32(void) ExitProcess(u32);
+int GetSystemMetrics(int);
+W32(void *) GetDC(HWND);
+W32(int) ChoosePixelFormat(HDC, PIXELFORMATDESCRIPTOR *);
+W32(void) DescribePixelFormat(HDC, int, int, PIXELFORMATDESCRIPTOR *);
+W32(u32) GetLastError();
+W32(b32) SetPixelFormat(HDC, int, const PIXELFORMATDESCRIPTOR *);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef void * HGLRC;
+void * wglCreateContext(HDC);
+b32 wglMakeCurrent(HDC, HGLRC);
 
 #endif

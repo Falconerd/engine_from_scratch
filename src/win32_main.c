@@ -11,7 +11,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-i64 win32_window_proc(void *h, u32 m, u64 w, i64 l) {
+i64 window_proc(void *h, u32 m, u64 w, i64 l) {
     switch (m) {
         case WM_CLOSE: {
             DestroyWindow(h);
@@ -34,7 +34,7 @@ void *test_alloc(i64 size, void *context) {
 int __stdcall WinMain(void *instance, void *prev_instance, const char *command_line, int show_code) {
     (void)instance; (void)prev_instance; (void)command_line; (void)show_code;
 
-    w32windowclass wc = {0, win32_window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
+    WNDCLASSA wc = {0, window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
 
     if (!RegisterClass(&wc)) {
         MessageBox(0, "Failed to register window class", "Error", 0);
@@ -46,7 +46,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     int window_position_x = (screen_width - WINDOW_WIDTH) / 2;
     int window_position_y = (screen_height - WINDOW_HEIGHT) / 2;
 
-    w32window window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+    HWND window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                                     window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, 0);
     if (!window) {
         MessageBox(0, "Failed to create window", "Error", 0);
@@ -70,12 +70,35 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    HDC dc = GetDC(window);
+
+    PIXELFORMATDESCRIPTOR desired_pixel_format = {
+        .nSize = sizeof(PIXELFORMATDESCRIPTOR),
+        .nVersion = 1,
+        .dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
+        .cColorBits = 24,
+        .cAlphaBits = 8,
+    };
+
+    int suggested_pixel_format_index = ChoosePixelFormat(dc, &desired_pixel_format);
+    PIXELFORMATDESCRIPTOR suggested_pixel_format = {0};
+    DescribePixelFormat(dc, suggested_pixel_format_index, sizeof(PIXELFORMATDESCRIPTOR), &suggested_pixel_format);
+    SetPixelFormat(dc, suggested_pixel_format_index, &suggested_pixel_format);
+
+    HGLRC glc = wglCreateContext(dc);
+    if (wglMakeCurrent(dc, glc)) {
+    } else {
+        __debugbreak();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     input_state input = {0};
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (;;) {
-        w32msg msg;
+        MSG msg;
         while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
                 return 0;

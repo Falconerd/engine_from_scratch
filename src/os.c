@@ -9,7 +9,7 @@ osfile osreadfile(char *name, allocator a) {
     osfile f = {0};
     void *h = CreateFile(name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h != INVALID_HANDLE_VALUE) {
-        large_integer file_size;
+        LARGE_INTEGER file_size;
         if (GetFileSize(h, &file_size)) {
             assert(file_size.QuadPart <= MAX_U32);
             u32 file_size_32 = (u32)file_size.QuadPart;
