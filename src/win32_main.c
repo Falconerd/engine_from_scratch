@@ -87,6 +87,17 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     HGLRC glc = wglCreateContext(dc);
     if (wglMakeCurrent(dc, glc)) {
+        // Get the proc address of all th required functoins first.
+        // If this fails, there's no point continuing.
+        wglGetExtensionsStringARB = (wglGetExtensionsStringARBdef *)wglGetProcAddress("wglGetExtensionsStringARB");
+        assert(wglGetExtensionsStringARB && "Could not load the wglGetExtensionsARB function.");
+        wglChoosePixelFormatARB = (wglChoosePixelFormatARBdef *)wglGetProcAddress("wglChoosePixelFormatARB");
+        assert(wglChoosePixelFormatARB && "Could not load the wglChoosePixelFormatARB function.");
+
+        // Ensure that the required extensions are available.
+        char *wgl_extensions = (char *)wglGetExtensionsStringARB(dc);
+        MessageBox(0, wgl_extensions, "Aww", 0);
+        __debugbreak();
     } else {
         __debugbreak();
     }

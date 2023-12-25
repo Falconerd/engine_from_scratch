@@ -164,7 +164,15 @@ W32(b32) SetPixelFormat(HDC, int, const PIXELFORMATDESCRIPTOR *);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef void * HGLRC;
-void * wglCreateContext(HDC);
+void *wglCreateContext(HDC);
 b32 wglMakeCurrent(HDC, HGLRC);
+void *wglGetProcAddress(char *);
+
+// Dynamically loaded via wglGetProcAddress.
+// Just add `def` to the end for the type.
+typedef const char *wglGetExtensionsStringARBdef(HDC);
+wglGetExtensionsStringARBdef *wglGetExtensionsStringARB;
+typedef b32 wglChoosePixelFormatARBdef(HDC, int *, f32 *, u32, int, u32);
+wglChoosePixelFormatARBdef *wglChoosePixelFormatARB;
 
 #endif
