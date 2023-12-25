@@ -17,4 +17,12 @@ s8 s8clone(s8 s, allocator a) {
     return r;
 }
 
+b32 s8contains(s8 haystack, s8 needle) {
+    u8 *curr = haystack.data;
+    i64 match_length = 0;
+    while (*curr) {
+        if (*curr)
+    }
+}
+
 #define s8fromstr(s, a) (s8clone((s8){strlen(s), (u8 *)s}, a))
