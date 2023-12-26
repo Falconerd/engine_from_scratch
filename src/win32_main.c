@@ -85,8 +85,9 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     DescribePixelFormat(dc, suggested_pixel_format_index, sizeof(PIXELFORMATDESCRIPTOR), &suggested_pixel_format);
     SetPixelFormat(dc, suggested_pixel_format_index, &suggested_pixel_format);
 
-    HGLRC glc = wglCreateContext(dc);
-    if (wglMakeCurrent(dc, glc)) {
+    // HGLRC glc;
+    HGLRC temp_glc = wglCreateContext(dc);
+    if (wglMakeCurrent(dc, temp_glc)) {
         // Get the proc address of all the required functoins first.
         // If this fails, there's no point continuing.
         wglGetExtensionsStringARB = (wglGetExtensionsStringARBdef *)wglGetProcAddress("wglGetExtensionsStringARB");
@@ -100,9 +101,28 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
         MessageBox(0, wgl_extensions.data, "OpenGL Extensions", 0);
 
-        assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) && "Could not find required extension.");
-        assert(s8contains(wgl_extensions, s8("WGL_ARB_framebuffer_sRGB")) && "Could not find required extension.");
-        assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
+        // assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) && "Could not find required extension.");
+        // assert(s8contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) && "Could not find required extension.");
+        // assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
+
+        int attribute_list[] = {
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+            WGL_DRAW_TO_WINDOW_ARB, 1,
+            WGL_SUPPORT_OPENGL_ARB, 1,
+            WGL_DOUBLE_BUFFER_ARB, 1,
+            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+            WGL_COLOR_BITS_ARB, 32,
+            WGL_DEPTH_BITS_ARB, 24,
+            WGL_STENCIL_BITS_ARB, 8,
+            0,
+        };
+
+        int pf;
+        u32 n;
+
+        b32 success = wglChoosePixelFormatARB(dc, attribute_list, 0, 1, &pf, &n);
+        (void)success;
         
         __debugbreak();
     } else {

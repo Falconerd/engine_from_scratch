@@ -172,6 +172,17 @@ W32(u32 *) glGetString(u32);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
+#define WGL_DRAW_TO_WINDOW_ARB        0x2001
+#define WGL_SUPPORT_OPENGL_ARB        0x2010
+#define WGL_DOUBLE_BUFFER_ARB         0x2011
+#define WGL_PIXEL_TYPE_ARB            0x2013
+#define WGL_TYPE_RGBA_ARB             0x202B
+#define WGL_COLOR_BITS_ARB            0x2014
+#define WGL_DEPTH_BITS_ARB            0x2022
+#define WGL_STENCIL_BITS_ARB          0x2023
+
 typedef void * HGLRC;
 void *wglCreateContext(HDC);
 b32 wglMakeCurrent(HDC, HGLRC);
@@ -181,7 +192,7 @@ void *wglGetProcAddress(char *);
 // Just add `def` to the end for the type.
 typedef const char *wglGetExtensionsStringARBdef(HDC);
 wglGetExtensionsStringARBdef *wglGetExtensionsStringARB;
-typedef b32 wglChoosePixelFormatARBdef(HDC, int *, f32 *, u32, int, u32);
+typedef b32 wglChoosePixelFormatARBdef(HDC, int *, f32 *, u32, int *, u32 *);
 wglChoosePixelFormatARBdef *wglChoosePixelFormatARB;
 
 #endif
