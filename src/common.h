@@ -41,7 +41,7 @@ typedef unsigned __int64    uptr;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define WINDOW_TITLE "Test"
+#define WINDOW_TITLE "Project: MP"
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 

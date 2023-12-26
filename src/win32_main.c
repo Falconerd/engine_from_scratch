@@ -5,6 +5,7 @@
 #include "math.c"
 #include "s8.c"
 
+#include "arena.c"
 #include "game.c"
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
@@ -61,6 +62,9 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     void *base_addr = (void *)ba;
 
     game_memory gm = {.permanent_storage_size = MB(64), .transient_storage_size = MB(64)};
+
+    
+
     u64 size = gm.permanent_storage_size + gm.transient_storage_size;
 
     gm.permanent_storage = VirtualAlloc(base_addr, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -149,6 +153,10 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     input_state input = {0};
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    game_init(&gm);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (;;) {
         MSG msg;
@@ -183,9 +191,11 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
             DispatchMessage(&msg);
         }
 
-        glClearColor(1, 0, 1, 1);
+        glClearColor(0.f, 0.105f, 0.105f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
-        game_update_and_render(&gm, &input);
+
+        game_update_and_render(&input);
+
         SwapBuffers(dc);
     }
 }

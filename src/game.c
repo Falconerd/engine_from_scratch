@@ -14,43 +14,35 @@ typedef struct {
 } input_state;
 
 typedef struct game_state {
-    b32 is_initialized;
     b32 is_running;
     u64 frame;
 } game_state;
 
-void game_update_and_render(game_memory *memory, input_state *input) {
+game_state *gs = 0;
+arena permanent_arena;
+arena transient_arena;
+allocator permanent_allocator;
+allocator transient_allocator;
 
-    assert(sizeof(game_state) <= memory->permanent_storage_size);
-    game_state *state = memory->permanent_storage;
+void game_init(game_memory *memory) {
+        permanent_arena = (arena){
+            .base = memory->permanent_storage,
+            .size = memory->permanent_storage_size,
+        };
+        transient_arena = (arena){
+            .base = memory->transient_storage,
+            .size = memory->transient_storage_size,
+        };
+        permanent_allocator = arena_alloc_init(&permanent_arena);
+        transient_allocator = arena_alloc_init(&transient_arena);
+        gs = make(game_state, 1, permanent_allocator);
+}
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    f32 a = turn_y(0.f);    // expect 1
-    f32 b = turn_y(0.125f); // expect ~0.7071
-    f32 c = turn_y(0.25f);  // expect 0
-    f32 d = turn_y(0.375f); // expect ~-0.7071
-    f32 e = turn_y(0.5f);   // expect -1
-    f32 f = turn_y(0.625f); // expect ~-0.7071
-    f32 g = turn_y(0.75f);  // expect 0
-    f32 h = turn_y(0.875f); // expect ~0.7071
-    f32 i = turn_y(1.f);    // expect 1
-    (void)a;
-    (void)b;
-    (void)c;
-    (void)d;
-    (void)e;
-    (void)f;
-    (void)g;
-    (void)h;
-    (void)i;
-
+void game_update_and_render(input_state *input) {
     if (input->forward.down) {
         MessageBox(0, "ARST", "ARST", 0);
         input->forward.down = 0;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
-    state->frame += 1;
+    gs->frame += 1;
 }

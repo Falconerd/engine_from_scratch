@@ -34,6 +34,6 @@ f32 turn_x(f32 v) {
 }
 
 f32 turn_y(f32 v) {
-    v += 0.25f;
+    v -= 0.25f;
     return turn_x(v);
 }
