@@ -87,7 +87,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     HGLRC glc = wglCreateContext(dc);
     if (wglMakeCurrent(dc, glc)) {
-        // Get the proc address of all th required functoins first.
+        // Get the proc address of all the required functoins first.
         // If this fails, there's no point continuing.
         wglGetExtensionsStringARB = (wglGetExtensionsStringARBdef *)wglGetProcAddress("wglGetExtensionsStringARB");
         assert(wglGetExtensionsStringARB && "Could not load the wglGetExtensionsARB function.");
@@ -95,8 +95,15 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         assert(wglChoosePixelFormatARB && "Could not load the wglChoosePixelFormatARB function.");
 
         // Ensure that the required extensions are available.
-        char *wgl_extensions = (char *)wglGetExtensionsStringARB(dc);
-        MessageBox(0, wgl_extensions, "Aww", 0);
+        s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
+        
+        MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
+        MessageBox(0, wgl_extensions.data, "OpenGL Extensions", 0);
+
+        assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) && "Could not find required extension.");
+        assert(s8contains(wgl_extensions, s8("WGL_ARB_framebuffer_sRGB")) && "Could not find required extension.");
+        assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
+        
         __debugbreak();
     } else {
         __debugbreak();

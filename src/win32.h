@@ -120,7 +120,7 @@ typedef struct {
 
 #define INVALID_HANDLE_VALUE (void *)-1
 
-#define VK_ESCAPE             0x1B
+#define VK_ESCAPE           0x1B
 
 #define PFD_SUPPORT_OPENGL  0x00000020
 #define PFD_DRAW_TO_WINDOW  0x00000004
@@ -160,6 +160,15 @@ W32(int) ChoosePixelFormat(HDC, PIXELFORMATDESCRIPTOR *);
 W32(void) DescribePixelFormat(HDC, int, int, PIXELFORMATDESCRIPTOR *);
 W32(u32) GetLastError();
 W32(b32) SetPixelFormat(HDC, int, const PIXELFORMATDESCRIPTOR *);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define GL_VENDOR           0x1F00
+#define GL_RENDERER         0x1F01
+#define GL_VERSION          0x1F02
+#define GL_EXTENSIONS       0x1F03
+
+W32(u32 *) glGetString(u32);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
