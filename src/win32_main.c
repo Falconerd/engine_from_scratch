@@ -70,6 +70,8 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Create OpenGL Context.
+
     HDC dc = GetDC(window);
 
     PIXELFORMATDESCRIPTOR desired_pixel_format = {
@@ -85,7 +87,7 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     DescribePixelFormat(dc, suggested_pixel_format_index, sizeof(PIXELFORMATDESCRIPTOR), &suggested_pixel_format);
     SetPixelFormat(dc, suggested_pixel_format_index, &suggested_pixel_format);
 
-    // HGLRC glc;
+    HGLRC glc;
     HGLRC temp_glc = wglCreateContext(dc);
     if (wglMakeCurrent(dc, temp_glc)) {
         // Get the proc address of all the required functoins first.
@@ -94,20 +96,17 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         assert(wglGetExtensionsStringARB && "Could not load the wglGetExtensionsARB function.");
         wglChoosePixelFormatARB = (wglChoosePixelFormatARBdef *)wglGetProcAddress("wglChoosePixelFormatARB");
         assert(wglChoosePixelFormatARB && "Could not load the wglChoosePixelFormatARB function.");
+        wglCreateContextAttribsARB = (wglCreateContextAttribsARBdef *) wglGetProcAddress("wglCreateContextAttribsARB");
+        assert(wglCreateContextAttribsARB && "Could not load the wglCreateContextAttribsARB function.");
 
         // Ensure that the required extensions are available.
         s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
-        
-        MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
-        MessageBox(0, wgl_extensions.data, "OpenGL Extensions", 0);
 
-        // assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) && "Could not find required extension.");
-        // assert(s8contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) && "Could not find required extension.");
-        // assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
+        assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) && "Could not find required extension.");
+        assert(s8contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) && "Could not find required extension.");
+        assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
 
-        int attribute_list[] = {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        int pflist[] = {
             WGL_DRAW_TO_WINDOW_ARB, 1,
             WGL_SUPPORT_OPENGL_ARB, 1,
             WGL_DOUBLE_BUFFER_ARB, 1,
@@ -118,15 +117,24 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
             0,
         };
 
+        int clist[] = {
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+            0,
+        };
+
         int pf;
         u32 n;
 
-        b32 success = wglChoosePixelFormatARB(dc, attribute_list, 0, 1, &pf, &n);
-        (void)success;
-        
-        __debugbreak();
+        b32 success = wglChoosePixelFormatARB(dc, pflist, 0, 1, &pf, &n);
+        assert(success && "Failed to get pixel format.");
+        glc = wglCreateContextAttribsARB(dc, temp_glc, clist);
+        assert(glc && "Failed to create OpenGL context.");
+        assert(wglMakeCurrent(dc, glc) && "Failed to make OpenGL context current.");
+        wglDeleteContext(temp_glc);
+        MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
     } else {
-        __debugbreak();
+        assert(0 && "Failed to make OpenGL context current.");
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

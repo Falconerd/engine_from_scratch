@@ -185,14 +185,19 @@ W32(u32 *) glGetString(u32);
 
 typedef void * HGLRC;
 void *wglCreateContext(HDC);
+void wglDeleteContext(HGLRC);
 b32 wglMakeCurrent(HDC, HGLRC);
 void *wglGetProcAddress(char *);
 
 // Dynamically loaded via wglGetProcAddress.
 // Just add `def` to the end for the type.
-typedef const char *wglGetExtensionsStringARBdef(HDC);
-wglGetExtensionsStringARBdef *wglGetExtensionsStringARB;
-typedef b32 wglChoosePixelFormatARBdef(HDC, int *, f32 *, u32, int *, u32 *);
-wglChoosePixelFormatARBdef *wglChoosePixelFormatARB;
+// Declare Type-Definition+Function-Pointer macro.
+#define TDFP_INNER(a, b) a##def##b
+#define TDFP(return_type, name, params) typedef return_type TDFP_INNER(name, params); TDFP_INNER(name, *) name;
+
+
+TDFP(const char *, wglGetExtensionsStringARB, (HDC));
+TDFP(b32, wglChoosePixelFormatARB, (HDC, int *, f32 *, u32, int *, u32 *));
+TDFP(HGLRC, wglCreateContextAttribsARB, (HDC, HGLRC, int *));
 
 #endif
