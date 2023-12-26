@@ -18,7 +18,8 @@
         assert(arr[2] == 13);
         assert(arr[3] == 17);
 
-    When array is invoked, size for the capacity plus a header is allocated using the provided allocator.
+    When array is invoked, size for the capacity plus a header is allocated using the provided
+    allocator.
 
     The header has this memory layout:
         bits | description
@@ -32,7 +33,8 @@
         | header   | items                    | remaining capacity
         | 40 bytes | item_size * length bytes | 
 
-    We don't have to keep the item size because operations will include a typed parameter that we can use sizeof on.
+    We don't have to keep the item size because operations will include a typed parameter that we
+    can use sizeof on.
 */
 
 // For convenience, we can just keep a header struct type here.

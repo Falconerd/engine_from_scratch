@@ -163,12 +163,17 @@ W32(b32) SetPixelFormat(HDC, int, const PIXELFORMATDESCRIPTOR *);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define GL_VENDOR           0x1F00
-#define GL_RENDERER         0x1F01
-#define GL_VERSION          0x1F02
-#define GL_EXTENSIONS       0x1F03
+#define GL_VENDOR                         0x1F00
+#define GL_RENDERER                       0x1F01
+#define GL_VERSION                        0x1F02
+#define GL_EXTENSIONS                     0x1F03
+#define GL_DEPTH_BUFFER_BIT               0x00000100
+#define GL_COLOR_BUFFER_BIT               0x00004000
 
 W32(u32 *) glGetString(u32);
+W32(void) glClearColor(f32, f32, f32, f32);
+W32(void) glClear(u32);
+W32(b32) SwapBuffers(HDC);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -194,7 +199,6 @@ void *wglGetProcAddress(char *);
 // Declare Type-Definition+Function-Pointer macro.
 #define TDFP_INNER(a, b) a##def##b
 #define TDFP(return_type, name, params) typedef return_type TDFP_INNER(name, params); TDFP_INNER(name, *) name;
-
 
 TDFP(const char *, wglGetExtensionsStringARB, (HDC));
 TDFP(b32, wglChoosePixelFormatARB, (HDC, int *, f32 *, u32, int *, u32 *));

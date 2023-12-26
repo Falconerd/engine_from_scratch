@@ -9,7 +9,7 @@
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 i64 window_proc(void *h, u32 m, u64 w, i64 l) {
     switch (m) {
@@ -31,8 +31,8 @@ void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
-int __stdcall WinMain(void *instance, void *prev_instance, const char *command_line, int show_code) {
-    (void)instance; (void)prev_instance; (void)command_line; (void)show_code;
+int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcode) {
+    (void)inst; (void)previnst; (void)cline; (void)showcode;
 
     WNDCLASSA wc = {0, window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
 
@@ -46,29 +46,31 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
     int window_position_x = (screen_width - WINDOW_WIDTH) / 2;
     int window_position_y = (screen_height - WINDOW_HEIGHT) / 2;
 
-    HWND window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE, WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                                    window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 0, 0);
+    HWND window = CreateWindow(0, WINDOW_TITLE, WINDOW_TITLE,
+                               WS_POPUP | WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                               window_position_x, window_position_y, WINDOW_WIDTH, WINDOW_HEIGHT,
+                               0, 0, 0, 0);
     if (!window) {
         MessageBox(0, "Failed to create window", "Error", 0);
         return 1;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     u64 ba = TB(4);
-    void *base_address = (void *)ba;
+    void *base_addr = (void *)ba;
 
     game_memory gm = {.permanent_storage_size = MB(64), .transient_storage_size = MB(64)};
     u64 size = gm.permanent_storage_size + gm.transient_storage_size;
 
-    gm.permanent_storage = VirtualAlloc(base_address, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    gm.permanent_storage = VirtualAlloc(base_addr, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     gm.transient_storage = ((u8 *)gm.permanent_storage) + gm.permanent_storage_size;
 
     assert(gm.permanent_storage && "Failed to allocate memory.");
 
     gm.is_initialized = 1;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create OpenGL Context.
 
@@ -82,66 +84,71 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
         .cAlphaBits = 8,
     };
 
-    int suggested_pixel_format_index = ChoosePixelFormat(dc, &desired_pixel_format);
-    PIXELFORMATDESCRIPTOR suggested_pixel_format = {0};
-    DescribePixelFormat(dc, suggested_pixel_format_index, sizeof(PIXELFORMATDESCRIPTOR), &suggested_pixel_format);
-    SetPixelFormat(dc, suggested_pixel_format_index, &suggested_pixel_format);
+    int chosen_index = ChoosePixelFormat(dc, &desired_pixel_format);
+    PIXELFORMATDESCRIPTOR chosen_pixel_format = {0};
+    DescribePixelFormat(dc, chosen_index, sizeof(PIXELFORMATDESCRIPTOR), &chosen_pixel_format);
+    SetPixelFormat(dc, chosen_index, &chosen_pixel_format);
 
     HGLRC glc;
     HGLRC temp_glc = wglCreateContext(dc);
-    if (wglMakeCurrent(dc, temp_glc)) {
-        // Get the proc address of all the required functoins first.
-        // If this fails, there's no point continuing.
-        wglGetExtensionsStringARB = (wglGetExtensionsStringARBdef *)wglGetProcAddress("wglGetExtensionsStringARB");
-        assert(wglGetExtensionsStringARB && "Could not load the wglGetExtensionsARB function.");
-        wglChoosePixelFormatARB = (wglChoosePixelFormatARBdef *)wglGetProcAddress("wglChoosePixelFormatARB");
-        assert(wglChoosePixelFormatARB && "Could not load the wglChoosePixelFormatARB function.");
-        wglCreateContextAttribsARB = (wglCreateContextAttribsARBdef *) wglGetProcAddress("wglCreateContextAttribsARB");
-        assert(wglCreateContextAttribsARB && "Could not load the wglCreateContextAttribsARB function.");
+    assert(wglMakeCurrent(dc, temp_glc) && "Failed to make OpenGL context current.");
+    // Get the proc address of all the required functoins first.
+    // If this fails, there's no point continuing.
+    wglGetExtensionsStringARB =
+        (wglGetExtensionsStringARBdef *)wglGetProcAddress("wglGetExtensionsStringARB");
+    assert(wglGetExtensionsStringARB && "Could not load the wglGetExtensionsARB function.");
 
-        // Ensure that the required extensions are available.
-        s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
+    wglChoosePixelFormatARB =
+        (wglChoosePixelFormatARBdef *)wglGetProcAddress("wglChoosePixelFormatARB");
+    assert(wglChoosePixelFormatARB && "Could not load the wglChoosePixelFormatARB function.");
 
-        assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) && "Could not find required extension.");
-        assert(s8contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) && "Could not find required extension.");
-        assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
+    wglCreateContextAttribsARB =
+        (wglCreateContextAttribsARBdef *) wglGetProcAddress("wglCreateContextAttribsARB");
+    assert(wglCreateContextAttribsARB && "Could not load the wglCreateContextAttribsARB function.");
 
-        int pflist[] = {
-            WGL_DRAW_TO_WINDOW_ARB, 1,
-            WGL_SUPPORT_OPENGL_ARB, 1,
-            WGL_DOUBLE_BUFFER_ARB, 1,
-            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-            WGL_COLOR_BITS_ARB, 32,
-            WGL_DEPTH_BITS_ARB, 24,
-            WGL_STENCIL_BITS_ARB, 8,
-            0,
-        };
+    // Ensure that the required extensions are available.
+    s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
 
-        int clist[] = {
-            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-            WGL_CONTEXT_MINOR_VERSION_ARB, 1,
-            0,
-        };
+    assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) &&
+        "Could not find required extension.");
+    assert(s8contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) &&
+        "Could not find required extension.");
+    assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) &&
+        "Could not find required extension.");
 
-        int pf;
-        u32 n;
+    int pflist[] = {
+        WGL_DRAW_TO_WINDOW_ARB, 1,
+        WGL_SUPPORT_OPENGL_ARB, 1,
+        WGL_DOUBLE_BUFFER_ARB, 1,
+        WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+        WGL_COLOR_BITS_ARB, 32,
+        WGL_DEPTH_BITS_ARB, 24,
+        WGL_STENCIL_BITS_ARB, 8,
+        0,
+    };
 
-        b32 success = wglChoosePixelFormatARB(dc, pflist, 0, 1, &pf, &n);
-        assert(success && "Failed to get pixel format.");
-        glc = wglCreateContextAttribsARB(dc, temp_glc, clist);
-        assert(glc && "Failed to create OpenGL context.");
-        assert(wglMakeCurrent(dc, glc) && "Failed to make OpenGL context current.");
-        wglDeleteContext(temp_glc);
-        MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
-    } else {
-        assert(0 && "Failed to make OpenGL context current.");
-    }
+    int clist[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+        0,
+    };
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    int pf;
+    u32 n;
+
+    b32 success = wglChoosePixelFormatARB(dc, pflist, 0, 1, &pf, &n);
+    assert(success && "Failed to get pixel format.");
+    glc = wglCreateContextAttribsARB(dc, temp_glc, clist);
+    assert(glc && "Failed to create OpenGL context.");
+    assert(wglMakeCurrent(dc, glc) && "Failed to make OpenGL context current.");
+    wglDeleteContext(temp_glc);
+    MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     input_state input = {0};
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (;;) {
         MSG msg;
@@ -176,7 +183,10 @@ int __stdcall WinMain(void *instance, void *prev_instance, const char *command_l
             DispatchMessage(&msg);
         }
 
+        glClearColor(1, 0, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
         game_update_and_render(&gm, &input);
+        SwapBuffers(dc);
     }
 }
 
