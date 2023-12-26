@@ -3,10 +3,10 @@
 typedef struct {
     i64 size;
     byte *data;
-} osfile;
+} os_file;
 
-osfile osreadfile(char *name, allocator a) {
-    osfile f = {0};
+os_file os_file_read(char *name, allocator a) {
+    os_file f = {0};
     void *h = CreateFile(name, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (h != INVALID_HANDLE_VALUE) {
         LARGE_INTEGER fs;

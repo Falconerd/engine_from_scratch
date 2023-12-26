@@ -25,17 +25,20 @@ allocator permanent_allocator;
 allocator transient_allocator;
 
 void game_init(game_memory *memory) {
-        permanent_arena = (arena){
-            .base = memory->permanent_storage,
-            .size = memory->permanent_storage_size,
-        };
-        transient_arena = (arena){
-            .base = memory->transient_storage,
-            .size = memory->transient_storage_size,
-        };
-        permanent_allocator = arena_alloc_init(&permanent_arena);
-        transient_allocator = arena_alloc_init(&transient_arena);
-        gs = make(game_state, 1, permanent_allocator);
+    permanent_arena = (arena){
+        .base = memory->permanent_storage,
+        .size = memory->permanent_storage_size,
+    };
+    transient_arena = (arena){
+        .base = memory->transient_storage,
+        .size = memory->transient_storage_size,
+    };
+    permanent_allocator = arena_alloc_init(&permanent_arena);
+    transient_allocator = arena_alloc_init(&transient_arena);
+    gs = make(game_state, 1, permanent_allocator);
+
+    u32 sid = draw_shader_create("data/vert.glsl", "data/frag.glsl", transient_allocator);
+    (void)sid;
 }
 
 void game_update_and_render(input_state *input) {
@@ -43,6 +46,8 @@ void game_update_and_render(input_state *input) {
         MessageBox(0, "ARST", "ARST", 0);
         input->forward.down = 0;
     }
+
+    // draw_triangle();
 
     gs->frame += 1;
 }

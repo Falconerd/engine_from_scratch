@@ -85,7 +85,7 @@ void *array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
         }
 
         // Copy data to new allocation.
-        memcopy(new_mem, h, old_length);
+        mem_copy(new_mem, h, old_length);
 
         // Naively try to free the old array.
         // Only free if a free function is available.
@@ -116,5 +116,5 @@ void array_put_fn(array_h *h, i64 item_size, void *item) {
 
     u8 *dest = (u8 *)h;
     dest += sizeof(array_h) + item_size * h->length;
-    memcopy(dest, item, item_size);
+    mem_copy(dest, item, item_size);
 }

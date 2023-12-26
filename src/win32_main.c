@@ -4,8 +4,8 @@
 #include "array.c"
 #include "math.c"
 #include "s8.c"
-
 #include "arena.c"
+#include "draw.c"
 #include "game.c"
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
@@ -113,11 +113,11 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     // Ensure that the required extensions are available.
     s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
 
-    assert(s8contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) &&
+    assert(s8_contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) &&
         "Could not find required extension.");
-    assert(s8contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) &&
+    assert(s8_contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) &&
         "Could not find required extension.");
-    assert(s8contains(wgl_extensions, s8("WGL_ARB_multisample")) &&
+    assert(s8_contains(wgl_extensions, s8("WGL_ARB_multisample")) &&
         "Could not find required extension.");
 
     int pflist[] = {
