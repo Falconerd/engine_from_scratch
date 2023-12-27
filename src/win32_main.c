@@ -32,6 +32,17 @@ void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
+void *proc_load(char *name) {
+    void *p = (void *)wglGetProcAddress(name);
+    if(p == 0 || (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) || (p == (void*)-1)) {
+        void *module = LoadLibrary("opengl32.dll");
+        p = (void *)GetProcAddress(module, name);
+    }
+    return p;
+}
+
+#define proc_load_assign(n) n = (n##def *)proc_load(#n); assert(n && "Failed to load n");
+
 int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcode) {
     (void)inst; (void)previnst; (void)cline; (void)showcode;
 
@@ -58,12 +69,11 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Allocate all the memory for the game.
     u64 ba = TB(4);
     void *base_addr = (void *)ba;
 
     game_memory gm = {.permanent_storage_size = MB(64), .transient_storage_size = MB(64)};
-
-    
 
     u64 size = gm.permanent_storage_size + gm.transient_storage_size;
 
@@ -77,7 +87,6 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create OpenGL Context.
-
     HDC dc = GetDC(window);
 
     PIXELFORMATDESCRIPTOR desired_pixel_format = {
@@ -96,27 +105,35 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     HGLRC glc;
     HGLRC temp_glc = wglCreateContext(dc);
     assert(wglMakeCurrent(dc, temp_glc) && "Failed to make OpenGL context current.");
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Get the proc address of all the required functoins first.
     // If this fails, there's no point continuing.
-    wglGetExtensionsStringARB =
-        (wglGetExtensionsStringARBdef *)wglGetProcAddress("wglGetExtensionsStringARB");
-    assert(wglGetExtensionsStringARB && "Could not load the wglGetExtensionsARB function.");
+    proc_load_assign(wglGetExtensionsStringARB);
+    proc_load_assign(wglChoosePixelFormatARB);
+    proc_load_assign(wglCreateContextAttribsARB);
+    proc_load_assign(glCreateShader);
+    proc_load_assign(glCompileShader);
+    proc_load_assign(glShaderSource);
+    proc_load_assign(glGetShaderiv);
+    proc_load_assign(glGetShaderInfoLog);
+    proc_load_assign(glCreateProgram);
+    proc_load_assign(glAttachShader);
+    proc_load_assign(glLinkProgram);
+    proc_load_assign(glGetProgramInfoLog);
+    proc_load_assign(glGetProgramiv);
 
-    wglChoosePixelFormatARB =
-        (wglChoosePixelFormatARBdef *)wglGetProcAddress("wglChoosePixelFormatARB");
-    assert(wglChoosePixelFormatARB && "Could not load the wglChoosePixelFormatARB function.");
-
-    wglCreateContextAttribsARB =
-        (wglCreateContextAttribsARBdef *) wglGetProcAddress("wglCreateContextAttribsARB");
-    assert(wglCreateContextAttribsARB && "Could not load the wglCreateContextAttribsARB function.");
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Ensure that the required extensions are available.
     s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
 
     assert(s8_contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) &&
         "Could not find required extension.");
-    assert(s8_contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) &&
-        "Could not find required extension.");
+    b32 has_framebuffer_sRGB = s8_contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) || 
+    s8_contains(wgl_extensions, s8("WGL_ARB_framebuffer_sRGB"));
+    assert(has_framebuffer_sRGB && "Could not find required extension.");
     assert(s8_contains(wgl_extensions, s8("WGL_ARB_multisample")) &&
         "Could not find required extension.");
 
@@ -146,7 +163,13 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     assert(glc && "Failed to create OpenGL context.");
     assert(wglMakeCurrent(dc, glc) && "Failed to make OpenGL context current.");
     wglDeleteContext(temp_glc);
+
+    // TODO: Check for extensions used by the game.
+
     MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
+    MessageBox(0, (char *)glGetString(GL_RENDERER), "OPENGL RENDERER", 0);
+    MessageBox(0, (char *)glGetString(GL_EXTENSIONS), "OPENGL EXTENSIONS", 0);
+    MessageBox(0, (char *)glGetString(GL_VENDOR), "OPENGL VENDOR", 0);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 

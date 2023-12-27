@@ -1,5 +1,6 @@
-#version 310
-in vec4 vp;
-void main() {
+#version 140
+in vec3 vp;
+
+void main(void) {
     gl_Position = vec4(vp, 1.0);
 }

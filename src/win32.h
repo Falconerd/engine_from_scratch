@@ -1,6 +1,4 @@
-#ifndef WIN32_H
-#define WIN32_H
-
+#pragma once
 #include "common.h"
 
 typedef i64 (__stdcall *WindowProc)(void *, u32, u64, i64);
@@ -160,20 +158,10 @@ W32(int) ChoosePixelFormat(HDC, PIXELFORMATDESCRIPTOR *);
 W32(void) DescribePixelFormat(HDC, int, int, PIXELFORMATDESCRIPTOR *);
 W32(u32) GetLastError();
 W32(b32) SetPixelFormat(HDC, int, const PIXELFORMATDESCRIPTOR *);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define GL_VENDOR                         0x1F00
-#define GL_RENDERER                       0x1F01
-#define GL_VERSION                        0x1F02
-#define GL_EXTENSIONS                     0x1F03
-#define GL_DEPTH_BUFFER_BIT               0x00000100
-#define GL_COLOR_BUFFER_BIT               0x00004000
-
-W32(u32 *) glGetString(u32);
-W32(void) glClearColor(f32, f32, f32, f32);
-W32(void) glClear(u32);
 W32(b32) SwapBuffers(HDC);
+#define LoadLibrary LoadLibraryA
+W32(void *) LoadLibraryA(char *);
+W32(void *) GetProcAddress(void *, char *);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -195,13 +183,7 @@ b32 wglMakeCurrent(HDC, HGLRC);
 void *wglGetProcAddress(char *);
 
 // Dynamically loaded via wglGetProcAddress.
-// Just add `def` to the end for the type.
-// Declare Type-Definition+Function-Pointer macro.
-#define TDFP_INNER(a, b) a##def##b
-#define TDFP(return_type, name, params) typedef return_type TDFP_INNER(name, params); TDFP_INNER(name, *) name;
 
 TDFP(const char *, wglGetExtensionsStringARB, (HDC));
 TDFP(b32, wglChoosePixelFormatARB, (HDC, int *, f32 *, u32, int *, u32 *));
 TDFP(HGLRC, wglCreateContextAttribsARB, (HDC, HGLRC, int *));
-
-#endif

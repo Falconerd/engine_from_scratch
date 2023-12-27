@@ -37,8 +37,10 @@ void game_init(game_memory *memory) {
     transient_allocator = arena_alloc_init(&transient_arena);
     gs = make(game_state, 1, permanent_allocator);
 
-    u32 sid = draw_shader_create("data/vert.glsl", "data/frag.glsl", transient_allocator);
-    (void)sid;
+    u32 shader_id = draw_shader_create("data/vert.glsl", "data/frag.glsl", transient_allocator);
+    assert(shader_id && "Failed to create shader.");
+
+    __debugbreak();
 }
 
 void game_update_and_render(input_state *input) {

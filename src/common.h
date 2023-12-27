@@ -1,5 +1,4 @@
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,5 +74,7 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif
-
+// Just add `def` to the end for the type.
+// Declare Type-Definition+Function-Pointer macro.
+#define TDFP_INNER(a, b) a##def##b
+#define TDFP(return_type, name, params) typedef return_type TDFP_INNER(name, params); TDFP_INNER(name, *) name;
