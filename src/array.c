@@ -37,6 +37,8 @@
     can use sizeof on.
 */
 
+#include "common.h"
+
 // For convenience, we can just keep a header struct type here.
 // It's also nice to be able to cast in the debugger.
 typedef struct {
@@ -48,7 +50,7 @@ typedef struct {
 #define array(t, a) (t *)array_fn(sizeof(t), 8, a)
 
 void *array_fn(i64 item_size, i64 capacity, allocator a) {
-    u8 *mem = a.alloc(item_size * capacity + sizeof(array_h), a.context);
+    byte *mem = make(byte, item_size * capacity + sizeof(array_h), a);
     if (!mem) {
         return 0;
     }
@@ -92,7 +94,7 @@ void *array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
         // Sometimes memory will be managed externally - e.g. scratch buffers.
         if (h->a.free) {
             i64 old_size = sizeof(array_h) + h->length * item_size;
-            h->a.free(old_size, h, a);
+            delete(old_size, h, h->a);
         }
 
         h = (array_h *)new_mem;
@@ -107,6 +109,7 @@ void *array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
 #define array_put(a, v) ( \
     (a) = array_ensure_capacity_fn(a, 1, sizeof(v)), \
     (a)[array_header(a)->length++] = (v))
+#define array_append array_put
 
 void array_put_fn(array_h *h, i64 item_size, void *item) {
     if (h->capacity == h->length) {
@@ -114,7 +117,7 @@ void array_put_fn(array_h *h, i64 item_size, void *item) {
         // h = array_resize(h) as memory location may change.
     }
 
-    u8 *dest = (u8 *)h;
+    byte *dest = (byte *)h;
     dest += sizeof(array_h) + item_size * h->length;
     mem_copy(dest, item, item_size);
 }

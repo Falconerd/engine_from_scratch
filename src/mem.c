@@ -1,6 +1,4 @@
-#define make(t, n, a) (t *)((a).alloc(sizeof(t) * n, (a).context))
-#define delete(s, p, a) ((a).free(s, p, (a).context))
-#define is_power_of_two(x) ((x != 0) && ((x & (x - 1)) == 0))
+#include "common.h"
 
 void mem_copy(void *dest, void *src, i64 size) {
     u8 *d = (u8 *)dest;

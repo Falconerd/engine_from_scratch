@@ -68,3 +68,4 @@ TDFP(void, glEnableVertexAttribArray, (u32 index));
 TDFP(void, glBindVertexArray, (u32));
 TDFP(void, glDrawArrays, (u32 type, u32, u32));
 TDFP(u32, glGetError, (void));
+TDFP(void, glUseProgram, (u32));

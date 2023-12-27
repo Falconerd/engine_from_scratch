@@ -108,11 +108,12 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Get the proc address of all the required functoins first.
+    // Get the proc address of all the required functions first.
     // If this fails, there's no point continuing.
     proc_load_assign(wglGetExtensionsStringARB);
     proc_load_assign(wglChoosePixelFormatARB);
     proc_load_assign(wglCreateContextAttribsARB);
+
     proc_load_assign(glCreateShader);
     proc_load_assign(glCompileShader);
     proc_load_assign(glShaderSource);
@@ -133,19 +134,20 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     proc_load_assign(glBindVertexArray);
     proc_load_assign(glDrawArrays);
     proc_load_assign(glGetError);
+    proc_load_assign(glUseProgram);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Ensure that the required extensions are available.
     s8 wgl_extensions = s8((char *)wglGetExtensionsStringARB(dc));
 
-    assert(s8_contains(wgl_extensions, s8("WGL_ARB_pixel_format_float")) &&
-        "Could not find required extension.");
-    b32 has_framebuffer_sRGB = s8_contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB")) || 
-    s8_contains(wgl_extensions, s8("WGL_ARB_framebuffer_sRGB"));
+    b32 has_float_pixels = s8_contains(wgl_extensions, s8("WGL_ARB_pixel_format_float"));
+    assert(has_float_pixels && "Could not find required extension.");
+
+    b32 has_framebuffer_sRGB = s8_contains(wgl_extensions, s8("WGL_EXT_framebuffer_sRGB"));
+        has_framebuffer_sRGB |= s8_contains(wgl_extensions, s8("WGL_ARB_framebuffer_sRGB"));
     assert(has_framebuffer_sRGB && "Could not find required extension.");
-    assert(s8_contains(wgl_extensions, s8("WGL_ARB_multisample")) &&
-        "Could not find required extension.");
+    assert(s8_contains(wgl_extensions, s8("WGL_ARB_multisample")) && "Could not find required extension.");
 
     int pflist[] = {
         WGL_DRAW_TO_WINDOW_ARB, 1,
@@ -175,11 +177,6 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     wglDeleteContext(temp_glc);
 
     // TODO: Check for extensions used by the game.
-
-    MessageBox(0, (char *)glGetString(GL_VERSION), "OPENGL VERSION", 0);
-    MessageBox(0, (char *)glGetString(GL_RENDERER), "OPENGL RENDERER", 0);
-    MessageBox(0, (char *)glGetString(GL_EXTENSIONS), "OPENGL EXTENSIONS", 0);
-    MessageBox(0, (char *)glGetString(GL_VENDOR), "OPENGL VENDOR", 0);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
