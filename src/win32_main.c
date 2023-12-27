@@ -123,6 +123,16 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     proc_load_assign(glLinkProgram);
     proc_load_assign(glGetProgramInfoLog);
     proc_load_assign(glGetProgramiv);
+    proc_load_assign(glGenVertexArrays);
+    proc_load_assign(glBindVertexArray);
+    proc_load_assign(glGenBuffers);
+    proc_load_assign(glBindBuffer);
+    proc_load_assign(glBufferData);
+    proc_load_assign(glVertexAttribPointer);
+    proc_load_assign(glEnableVertexAttribArray);
+    proc_load_assign(glBindVertexArray);
+    proc_load_assign(glDrawArrays);
+    proc_load_assign(glGetError);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 

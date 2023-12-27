@@ -6,15 +6,15 @@ typedef void * HWND;
 typedef void * HDC;
 
 typedef union {
-  struct {
-    u32 LowPart;
-    i32 HighPart;
-  } DUMMYSTRUCTNAME;
-  struct {
-    u32 LowPart;
-    i32 HighPart;
-  } u;
-  i64 QuadPart;
+    struct {
+        u32 LowPart;
+        i32 HighPart;
+    } DUMMYSTRUCTNAME;
+    struct {
+        u32 LowPart;
+        i32 HighPart;
+    } u;
+    i64 QuadPart;
 } LARGE_INTEGER;
 
 typedef struct {
@@ -33,42 +33,42 @@ typedef struct {
 } MSG;
 
 typedef struct {
-  u32 style;
-  WindowProc lpfnWndProc;
-  int cbClsExtra;
-  int cbWndExtra;
-  void *hInstance;
-  void *hIcon;
-  void *hCursor;
-  void *hbrBackground;
-  char *lpszMenuMane;
-  char *lpszClassName;
+    u32 style;
+    WindowProc lpfnWndProc;
+    int cbClsExtra;
+    int cbWndExtra;
+    void *hInstance;
+    void *hIcon;
+    void *hCursor;
+    void *hbrBackground;
+    char *lpszMenuMane;
+    char *lpszClassName;
 } WNDCLASSA;
 
 typedef struct {
-    u16  nSize;
-    u16  nVersion;
+    u16 nSize;
+    u16 nVersion;
     u32 dwFlags;
-    byte  iPixelType;
-    byte  cColorBits;
-    byte  cRedBits;
-    byte  cRedShift;
-    byte  cGreenBits;
-    byte  cGreenShift;
-    byte  cBlueBits;
-    byte  cBlueShift;
-    byte  cAlphaBits;
-    byte  cAlphaShift;
-    byte  cAccumBits;
-    byte  cAccumRedBits;
-    byte  cAccumGreenBits;
-    byte  cAccumBlueBits;
-    byte  cAccumAlphaBits;
-    byte  cDepthBits;
-    byte  cStencilBits;
-    byte  cAuxBuffers;
-    byte  iLayerType;
-    byte  bReserved;
+    byte iPixelType;
+    byte cColorBits;
+    byte cRedBits;
+    byte cRedShift;
+    byte cGreenBits;
+    byte cGreenShift;
+    byte cBlueBits;
+    byte cBlueShift;
+    byte cAlphaBits;
+    byte cAlphaShift;
+    byte cAccumBits;
+    byte cAccumRedBits;
+    byte cAccumGreenBits;
+    byte cAccumBlueBits;
+    byte cAccumAlphaBits;
+    byte cDepthBits;
+    byte cStencilBits;
+    byte cAuxBuffers;
+    byte iLayerType;
+    byte bReserved;
     u32 dwLayerMask;
     u32 dwVisibleMask;
     u32 dwDamageMask;
@@ -89,11 +89,10 @@ typedef struct {
 #define WM_DESTROY          0x0002
 #define WM_CLOSE            0x0010
 #define WM_QUIT             0x0012
-
-#define PM_REMOVE           0x0001
-
 #define WM_KEYDOWN          0x0100
 #define WM_KEYUP            0x0101
+
+#define PM_REMOVE           0x0001
 
 #define SM_CXSCREEN         0
 #define SM_CYSCREEN         1
