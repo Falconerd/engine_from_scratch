@@ -93,7 +93,12 @@ void game_init(game_memory *memory) {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 4, GL_FLOAT, 0, 10 * sizeof(f32), (void *)(6 * sizeof(f32)));
     glEnableVertexAttribArray(2);
-    
+
+    glGenTextures(1, &gs->arial_texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // glTexStorage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 16, 16, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 16, 16, 0, GL_RGBA, GL_UNSIGNED_BYTE, msdf_image_data);
+// TDFP(void, glTexImage2D, (i32 target, i32 level, i32 internalformat, size width, size height, i32 border, u32 format, u32 type, void *data));
 }
 
 void game_update_and_render(input_state *input) {

@@ -135,6 +135,9 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     proc_load_assign(glDrawArrays);
     proc_load_assign(glGetError);
     proc_load_assign(glUseProgram);
+    proc_load_assign(glGenTextures);
+    proc_load_assign(glBindTexture);
+    proc_load_assign(glTexImage2D);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 

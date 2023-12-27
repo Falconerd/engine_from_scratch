@@ -69,3 +69,7 @@ TDFP(void, glBindVertexArray, (u32));
 TDFP(void, glDrawArrays, (u32 type, u32, u32));
 TDFP(u32, glGetError, (void));
 TDFP(void, glUseProgram, (u32));
+TDFP(void, glGenTextures, (size s, u32 *dest));
+TDFP(void, glBindTexture, (u32 target, u32 texture));
+TDFP(void, glTexImage2D, (u32 target, i32 level, i32 internalformat, size width, size height, i32 border, u32 format, u32 type, void *data));
+
