@@ -19,6 +19,9 @@ typedef struct game_state {
     u32 shader_id;
     u32 vao;
     u32 vbo;
+    u32 text_shader_id;
+    u32 text_vao;
+    u32 text_vbo;
     u32 glerr;
 } game_state;
 
@@ -41,10 +44,9 @@ void game_init(game_memory *memory) {
     transient_allocator = arena_alloc_init(&transient_arena);
     gs = make(game_state, 1, permanent_allocator);
 
-    gs->shader_id = draw_shader_create("data/vert.glsl", "data/frag.glsl", transient_allocator);
+    // NOTE: Move these somewhere appropriate.
+    gs->shader_id = draw_shader_create("runtime/vert.glsl", "runtime/frag.glsl", transient_allocator);
     assert(gs->shader_id && "Failed to create shader.");
-
-    glUseProgram(gs->shader_id);
 
     f32 vertices[] = {
         -0.5f, -0.5f, 0.f,
@@ -66,6 +68,32 @@ void game_init(game_memory *memory) {
     glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(f32), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, 0, 3 * sizeof(f32), (void *)0);
     glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+
+    gs->text_shader_id = draw_shader_create("runtime/text_vert.glsl", "runtime/text_frag.glsl", transient_allocator);
+
+    #define top_left    -0.5f, -0.5f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f
+    #define top_right    0.5f, -0.5f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 1.f
+    #define bottom_right 0.5f,  0.5f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f
+    #define bottom_left -0.5f,  0.5f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 1.f
+    f32 quad_vertices[] = {
+        bottom_left, bottom_right, top_right,
+        bottom_left, top_right, top_left,
+    };
+
+    glGenVertexArrays(1, &gs->text_vao);
+    glGenBuffers(1, &gs->text_vbo);
+    glBindVertexArray(gs->text_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, gs->text_vbo);
+    glBufferData(GL_ARRAY_BUFFER, 60 * sizeof(f32), quad_vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, 0, 10 * sizeof(f32), (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, 0, 10 * sizeof(f32), (void *)(3 * sizeof(f32)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 4, GL_FLOAT, 0, 10 * sizeof(f32), (void *)(6 * sizeof(f32)));
+    glEnableVertexAttribArray(2);
+    
 }
 
 void game_update_and_render(input_state *input) {
@@ -74,10 +102,12 @@ void game_update_and_render(input_state *input) {
         input->forward.down = 0;
     }
 
-    // draw_triangle();
-    glUseProgram(gs->shader_id);
-    glBindVertexArray(gs->vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    // glUseProgram(gs->shader_id);
+    // glBindVertexArray(gs->vao);
+    // glDrawArrays(GL_TRIANGLES, 0, 3);
+    glUseProgram(gs->text_shader_id);
+    glBindVertexArray(gs->text_vao);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     gs->frame += 1;
 }
