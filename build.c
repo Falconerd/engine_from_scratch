@@ -24,9 +24,13 @@ int main(int argc, char *argv[]) {
     double seconds;
 
     int release = 0;
+    int link = 1;
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--release") == 0) {
+        if (!strcmp(argv[i], "--release") || !strcmp(argv[i], "-r")) {
             release = 1;
+        }
+        if (!strcmp(argv[i], "-c")) {
+            link = 0;
         }
     }
 
@@ -42,16 +46,17 @@ int main(int argc, char *argv[]) {
 
     char buf[512] = {0};
     const char *optimization = release ? "/O2" : "/Zi";
-    // NOTE: Not sure if this is the best way to do this, but it works fine.
-    const char *release_header = release ? " src\\release.c" : "";
-    //                                      ^ this space is intentional.
-    sprintf(buf, "%s %s %s%s src\\win32_main.c -Fe:_main.exe -link %s %s", CC, CFLAGS, optimization, release_header, LINK_ARGS, LIBS);
+    const char *release_flags = release ? "-DBUILD_SPEED -DBUILD_EXTERNAL" : "";
+
+    char link_str[256] = {'-', 'c'};
+    if (link) {
+        sprintf(link_str, "-link %s %s", LINK_ARGS, LIBS);
+    }
+
+    sprintf(buf, "%s %s %s %s src\\win32_main.c -Fe:_main.exe %s", CC, CFLAGS, optimization, release_flags, link_str);
     printf("%s\n", buf);
     system(buf);
 
-    system("del /Q .\\*.obj");
-    system("del /Q .\\*.ilk");
-    
     if (!QueryPerformanceCounter(&end)) {
         fprintf(stderr, "Failed to get ending time\n");
         return 1;

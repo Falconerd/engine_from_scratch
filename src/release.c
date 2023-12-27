@@ -1,3 +1,0 @@
-#define BUILD_SPEED 1
-#define BUILD_EXTERNAL 1
-
