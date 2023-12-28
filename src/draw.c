@@ -1,5 +1,9 @@
 #include "gl.h"
 
+typedef struct {
+    v3 position;
+} quad_vertex;
+
 u32 draw_shader_create(char *vp, char *fp, allocator a) {
     os_file vf = os_file_read(vp, a);
     if (!vf.size) return 0;

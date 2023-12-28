@@ -1,4 +1,4 @@
-
+#include "common.h"
 // typedef struct {
 //    char  idlength;
 //    char  colourmaptype;
@@ -13,12 +13,6 @@
 //    char  bitsperpixel;
 //    char  imagedescriptor;
 // } HEADER;
-
-typedef struct {
-    u8 r;
-    u8 g;
-    u8 b;
-} u8rgb;
 
 void tga_dimensions(byte *tga_bytes, size *width, size *height) {
     byte *width_pos = &tga_bytes[12];

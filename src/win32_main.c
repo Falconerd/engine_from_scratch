@@ -7,6 +7,7 @@
 #include "arena.c"
 #include "draw.c"
 #include "tga.c"
+#include "pie.c"
 #include "text.c"
 #include "game.c"
 
