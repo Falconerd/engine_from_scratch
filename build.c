@@ -8,7 +8,7 @@
     -Gs1000000000: Turn off stack probes.
     -Oi: Enable compiler intrinsics.
 */
-#define CFLAGS "-TC -nologo -GR- -GS- -Gs1000000000 -Oi -W4"
+#define CFLAGS "-TC -nologo -GR- -GS- -Gs1000000000 -Oi -W4 -MP"
 #define CC "cl"
 
 /*

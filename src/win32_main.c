@@ -138,6 +138,14 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     proc_load_assign(glGenTextures);
     proc_load_assign(glBindTexture);
     proc_load_assign(glTexImage2D);
+    proc_load_assign(glTexParameteri);
+    proc_load_assign(glActiveTexture);
+    proc_load_assign(glGetUniformLocation);
+    proc_load_assign(glUniform1i);
+    proc_load_assign(glUniformMatrix4fv);
+    proc_load_assign(glViewport);
+    proc_load_assign(glEnable);
+    proc_load_assign(glBlendFunc);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
