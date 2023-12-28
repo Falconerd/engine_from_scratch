@@ -23,8 +23,8 @@ typedef struct {
 // This doesn't use the advance of the font!
 // For the position, we will use coordinates as if they have been scaled,
 // rather than between 0 and 1.
-result text_write(v3 pos, glyph *font, s8 text, allocator al) {
-    v3 v = pos;
+result text_write(v3 pos, v2 scale, glyph *font, s8 text, allocator al) {
+    v3 v = v3(pos.x * 1.f / scale.x, pos.y * 1.f / scale.y, pos.z);
     text_vertex *verts = make(text_vertex, text.length * 6, al);
     f32 texture_width  = font[31].x;
     f32 texture_height = font[31].y;

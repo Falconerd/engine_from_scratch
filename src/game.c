@@ -97,7 +97,7 @@ void game_init(game_memory *memory) {
     result font_rgb_bytes = rgb_from_tga(font_tga_file.data, transient_allocator);
     assert(font_rgb_bytes.size && "Failed to create font data.");
 
-    result text_verts = text_write(v3(10.f, 10.f, 0.f), monofonto_atlas_data, s8("Player Pos: 1.34, 32.23, 0.78"), transient_allocator);
+    result text_verts = text_write(v3(10.f, RENDER_HEIGHT - 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, s8("Player Pos: 1.34, 32.23, 0.78"), transient_allocator);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -136,10 +136,6 @@ void game_init(game_memory *memory) {
     pie_image pie_image = pie_from_bytes(pie_file.data);
     result pie_rgb = pie_rgb_from_pie(pie_image, transient_allocator);
 
-    (void)pie_image;
-    (void)pie_file;
-    (void)pie_rgb;
-
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     gs->quad_shader_id = draw_shader_create("runtime/quad_vert.glsl", "runtime/quad_frag.glsl", transient_allocator);
@@ -147,7 +143,7 @@ void game_init(game_memory *memory) {
 
     m4_ortho(&gs->quad_projection, 0.f, WINDOW_WIDTH, 0.f, WINDOW_HEIGHT, -1.f, 1.f);
     gs->quad_model = m4_identity();
-    m4_scale(&gs->quad_model, v3(25.f, 25.f, 1.f));
+    m4_scale(&gs->quad_model, v3(250.f, 250.f, 1.f));
 
     f32 quad_vertices[] = {
         0.f, 0.f, 0.f,
@@ -168,11 +164,11 @@ void game_init(game_memory *memory) {
 
     glGenTextures(1, &gs->test_texture);
     glBindTexture(GL_TEXTURE_2D, gs->test_texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, font_texture_width, font_texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, pie_rgb.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pie_image.width, pie_image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, pie_rgb.data);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -192,10 +188,12 @@ void game_update_and_render(input_state *input) {
     {
         i32 uloc = glGetUniformLocation(gs->text_shader_id, "projection");
         glUniformMatrix4fv(uloc, 1, 0, &gs->projection.data[0][0]);
+
         uloc = glGetUniformLocation(gs->text_shader_id, "model");
         glUniformMatrix4fv(uloc, 1, 0, &gs->model.data[0][0]);
         glActiveTexture(GL_TEXTURE0 + 0);
         glBindTexture(GL_TEXTURE_2D, gs->arial_texture);
+
         uloc = glGetUniformLocation(gs->text_shader_id, "msdf");
         glUniform1i(uloc, 0);
         glUseProgram(gs->text_shader_id);
@@ -207,6 +205,7 @@ void game_update_and_render(input_state *input) {
     {
         i32 uloc = glGetUniformLocation(gs->quad_shader_id, "projection");
         glUniformMatrix4fv(uloc, 1, 0, &gs->quad_projection.data[0][0]);
+
         uloc = glGetUniformLocation(gs->quad_shader_id, "model");
         glUniformMatrix4fv(uloc, 1, 0, &gs->quad_model.data[0][0]);
         glActiveTexture(GL_TEXTURE0 + 0);
