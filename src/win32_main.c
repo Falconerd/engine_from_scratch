@@ -6,6 +6,8 @@
 #include "s8.c"
 #include "arena.c"
 #include "draw.c"
+#include "tga.c"
+#include "text.c"
 #include "game.c"
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
