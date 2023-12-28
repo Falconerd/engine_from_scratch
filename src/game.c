@@ -24,6 +24,8 @@ typedef struct game_state {
     u32 text_vbo;
     u32 glerr;
     u32 arial_texture;
+    m4 projection;
+    m4 model;
 } game_state;
 
 game_state *gs = 0;
@@ -79,19 +81,15 @@ void game_init(game_memory *memory) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    m4 projection = {0};
-    m4_ortho(&projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
+    m4_ortho(&gs->projection, 0.f, WINDOW_WIDTH, 0.f, WINDOW_HEIGHT, -1.f, 1.f);
+    // m4_ortho(&gs->projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
+    gs->model = m4_identity();
+    m4_scale(&gs->model, v3(16.f, 16.f, 1.f));
 
-    glUseProgram(gs->text_shader_id);
-    {
-        i32 uloc = glGetUniformLocation(gs->text_shader_id, "projection");
-        glUniformMatrix4fv(uloc, 1, 0, &projection.data[0][0]);
-    }
-
-    #define bottom_left   0.0f,  0.0f, 0.f,   0.f, 0.f,   0.f, 0.f, 1.f, 1.f
-    #define bottom_right  1.0f,  0.0f, 0.f,   1.f, 0.f,   1.f, 1.f, 0.f, 1.f
-    #define top_right     1.0f,  1.0f, 0.f,   1.f, 1.f,   0.f, 1.f, 0.f, 1.f
-    #define top_left      0.0f,  1.0f, 0.f,   0.f, 1.f,   1.f, 0.f, 0.f, 1.f
+    #define bottom_left   0.0f, 0.0f, 0.f,   0.f, 0.f,   0.f, 0.f, 1.f, 1.f
+    #define bottom_right  1.0f, 0.0f, 0.f,   1.f, 0.f,   1.f, 1.f, 0.f, 1.f
+    #define top_right     1.0f, 1.0f, 0.f,   1.f, 1.f,   0.f, 1.f, 0.f, 1.f
+    #define top_left      0.0f, 1.0f, 0.f,   0.f, 1.f,   1.f, 0.f, 0.f, 1.f
     f32 quad_vertices[] = {
         bottom_left, bottom_right, top_right,
         bottom_left, top_right, top_left,
@@ -148,6 +146,15 @@ void game_update_and_render(input_state *input) {
     // glUseProgram(gs->shader_id);
     // glBindVertexArray(gs->vao);
     // glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glUseProgram(gs->text_shader_id);
+    {
+        i32 uloc = glGetUniformLocation(gs->text_shader_id, "projection");
+        glUniformMatrix4fv(uloc, 1, 0, &gs->projection.data[0][0]);
+        uloc = glGetUniformLocation(gs->text_shader_id, "model");
+        glUniformMatrix4fv(uloc, 1, 0, &gs->model.data[0][0]);
+    }
+
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, gs->arial_texture);
     i32 uloc = glGetUniformLocation(gs->text_shader_id, "msdf");

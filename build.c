@@ -53,6 +53,10 @@ int main(int argc, char *argv[]) {
         sprintf(link_str, "-link %s %s", LINK_ARGS, LIBS);
     }
 
+    // Always do a full build and link.
+    system("del /Q _main.ilk");
+    system("del /Q _main.pdb");
+
     sprintf(buf, "%s %s %s %s src\\win32_main.c -Fe:_main.exe %s", CC, CFLAGS, optimization, release_flags, link_str);
     printf("%s\n", buf);
     system(buf);
