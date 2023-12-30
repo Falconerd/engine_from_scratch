@@ -5,10 +5,24 @@
 #define TAYLOR_COUNT 6
 
 // TOOD: Fill out these functions.
-f32 msqrtf(f32 v) { (void)v; return 0.f; };
+f32 msqrtf(f32 v) {
+    f32 x = v * 0.5f;
+    f32 y = v;
+    i32 i = *(i32 *)&y;
+    i = 0x5f3759df - (i >> 1);
+    y = *(f32*)&i;
+    y = y * (1.5f - (x * y * y));
+    y = y * (1.5f - (x * y * y));
+    return v * y;
+};
 f32 mtanf(f32 v) { (void)v; return 0.f; };
 f32 mcosf(f32 v) { (void)v; return 0.f; };
 f32 msinf(f32 v) { (void)v; return 0.f; };
+
+u32 mrand(u32 v) {
+    v = (v << 13) ^ v;
+    return ((v * (v * v * 15731 + 789221) + 1376312589) & 0x7fffffff);
+}
 
 // Dumb Cosine to learn Taylor Series. I still don't get it.
 // NOTE: Right now I'm just converting the turn into radians by
