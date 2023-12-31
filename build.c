@@ -34,16 +34,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (!QueryPerformanceFrequency(&frequency)) {
-        fprintf(stderr, "Failed to get performance counter frequency\n");
-        return 1;
-    }
-
-    if (!QueryPerformanceCounter(&start)) {
-        fprintf(stderr, "Failed to get starting time\n");
-        return 1;
-    }
-
     char buf[512] = {0};
     const char *optimization = release ? "/O2" : "/Zi";
     const char *release_flags = release ? "-DBUILD_SPEED -DBUILD_EXTERNAL" : "";
@@ -57,14 +47,14 @@ int main(int argc, char *argv[]) {
     system("del /Q _main.ilk");
     system("del /Q _main.pdb");
 
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&start);
+
     sprintf(buf, "%s %s %s %s src\\win32_main.c -Fe:_main.exe %s", CC, CFLAGS, optimization, release_flags, link_str);
     printf("%s\n", buf);
     system(buf);
 
-    if (!QueryPerformanceCounter(&end)) {
-        fprintf(stderr, "Failed to get ending time\n");
-        return 1;
-    }
+    QueryPerformanceCounter(&end);
 
     seconds = (double)(end.QuadPart - start.QuadPart) / frequency.QuadPart;
     printf("Time taken: %.6f seconds\n", seconds);
