@@ -112,7 +112,7 @@ void game_init(game_memory *memory) {
     glGenBuffers(1, &gs->text_vbo);
     glBindVertexArray(gs->text_vao);
     glBindBuffer(GL_ARRAY_BUFFER, gs->text_vbo);
-    glBufferData(GL_ARRAY_BUFFER, text_verts.size * sizeof(text_vertex), text_verts.data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, text_verts.size * sizeof(text_vertex), text_verts.data, GL_STATIC_DRAW);;
     glVertexAttribPointer(0, 3, GL_FLOAT, 0, sizeof(text_vertex), (void *)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, 0, sizeof(text_vertex), (void *)(3 * sizeof(f32)));
@@ -131,9 +131,9 @@ void game_init(game_memory *memory) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    os_file pie_file = os_file_read("runtime/img.pie", transient_allocator);
+    os_file pie_file = os_file_read("runtime/8x8.pie", transient_allocator);
     pie_header *image_header = (pie_header *)pie_file.data;
-    pie_pixels pp = pie_pixels_from_bytes(pie_file.data, (pie_allocator *)&transient_allocator);
+    pie_pixels pp = pie_pixels_from_bytes(pie_file.data, 1, (pie_allocator *)&transient_allocator);
     u32 format = pp.stride == 4 ? GL_RGBA : GL_RGB;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
