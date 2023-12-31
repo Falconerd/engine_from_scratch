@@ -131,10 +131,14 @@ void game_init(game_memory *memory) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    os_file pie_file = os_file_read("runtime/8x8.pie", transient_allocator);
-    pie_header *image_header = (pie_header *)pie_file.data;
-    pie_pixels pp = pie_pixels_from_bytes(pie_file.data, 1, (pie_allocator *)&transient_allocator);
+    os_file pie_file = os_file_read("runtime/2x2.pie", transient_allocator);
+    // os_file pie_file = os_file_read("runtime/crows-248838.pie", transient_allocator);
+    // pie_pixels pp = pie_pixels_from_bytes(pie_file.data, 1, (pie_allocator *)&transient_allocator);
+    byte *pie_buffer = make(byte, MB(10), transient_allocator);
+    pie_pixels pp = pie_decode(pie_file.data, pie_buffer, MB(10));
     u32 format = pp.stride == 4 ? GL_RGBA : GL_RGB;
+    byte *pbuffer = make(byte, pp.size, transient_allocator);
+    pie_encode(pie_buffer, pp.width, pp.height, 0, 0, pp.stride, pbuffer, pp.size);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -168,10 +172,10 @@ void game_init(game_memory *memory) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_header->width, image_header->height, 0, format, GL_UNSIGNED_BYTE, pp.data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pp.width, pp.height, 0, format, GL_UNSIGNED_BYTE, pie_buffer);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    pie_pixels_free(&pp);
+    // pie_pixels_free(&pp);
 }
 
 void game_update_and_render(input_state *input) {
