@@ -131,14 +131,10 @@ void game_init(game_memory *memory) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    os_file pie_file = os_file_read("runtime/test_embedded_palette_v2.pie", transient_allocator);
-    // Non-allocating - uses supplied data.
-    pie_header image_header = *(pie_header *)pie_file.data;
-    size pixel_buffer_size = image_header.width * image_header.height * pie_stride(&image_header);
-    byte *pixel_buffer = make(byte, pixel_buffer_size, transient_allocator);
-    pie_pixels_from_bytes(pie_file.data, pixel_buffer);
-    // pie_pixels pie_pixels = pie_pixels_from_bytes(pie_file.data);
-    // result pie_rgb = pie_rgb_from_pie(pie_image, transient_allocator);
+    os_file pie_file = os_file_read("runtime/img.pie", transient_allocator);
+    pie_header *image_header = (pie_header *)pie_file.data;
+    pie_pixels pp = pie_pixels_from_bytes(pie_file.data, (pie_allocator *)&transient_allocator);
+    u32 format = pp.stride == 4 ? GL_RGBA : GL_RGB;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -172,8 +168,10 @@ void game_init(game_memory *memory) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_header.width, image_header.height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixel_buffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_header->width, image_header->height, 0, format, GL_UNSIGNED_BYTE, pp.data);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    pie_pixels_free(&pp);
 }
 
 void game_update_and_render(input_state *input) {
