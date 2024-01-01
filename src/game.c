@@ -97,14 +97,14 @@ void game_init(game_memory *memory) {
     result font_rgb_bytes = rgb_from_tga(font_tga_file.data, transient_allocator);
     assert(font_rgb_bytes.size && "Failed to create font data.");
 
-    result text_verts = text_write(v3(10.f, RENDER_HEIGHT - 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, s8("Player Pos: 1.34, 32.23, 0.78"), transient_allocator);
+    result text_verts = text_write(v3(10.f, 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, s8("Player Pos: 1.34, 32.23, 0.78"), transient_allocator);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     gs->text_shader_id = draw_shader_create("runtime/text_vert.glsl", "runtime/text_frag.glsl", transient_allocator);
     assert(gs->text_shader_id);
 
-    m4_ortho(&gs->projection, 0.f, WINDOW_WIDTH, 0.f, WINDOW_HEIGHT, -1.f, 1.f);
+    m4_ortho(&gs->projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
     gs->model = m4_identity();
     m4_scale(&gs->model, v3(0.25f, 0.25f, 1.f));
 
@@ -131,23 +131,20 @@ void game_init(game_memory *memory) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    os_file pie_file = os_file_read("runtime/2x2.pie", transient_allocator);
-    // os_file pie_file = os_file_read("runtime/crows-248838.pie", transient_allocator);
-    // pie_pixels pp = pie_pixels_from_bytes(pie_file.data, 1, (pie_allocator *)&transient_allocator);
+    os_file pie_file = os_file_read("runtime/crows-248838.pie", transient_allocator);
     byte *pie_buffer = make(byte, MB(10), transient_allocator);
-    pie_pixels pp = pie_decode(pie_file.data, pie_buffer, MB(10));
-    u32 format = pp.stride == 4 ? GL_RGBA : GL_RGB;
-    byte *pbuffer = make(byte, pp.size, transient_allocator);
-    pie_encode(pie_buffer, pp.width, pp.height, 0, 0, pp.stride, pbuffer, pp.size);
+    pie_decoded decoded = pie_decode(pie_file.data, pie_buffer, MB(10));
+    u32 format = decoded.stride == 4 ? GL_RGBA : GL_RGB;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     gs->quad_shader_id = draw_shader_create("runtime/quad_vert.glsl", "runtime/quad_frag.glsl", transient_allocator);
     assert(gs->quad_shader_id);
 
-    m4_ortho(&gs->quad_projection, 0.f, WINDOW_WIDTH, 0.f, WINDOW_HEIGHT, -1.f, 1.f);
+    m4_ortho(&gs->quad_projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
     gs->quad_model = m4_identity();
-    m4_scale(&gs->quad_model, v3(250.f, 250.f, 1.f));
+    // m4_translate(&gs->quad_model, v3(-0.8f, 0.8f, 0.f));
+    m4_scale(&gs->quad_model, v3(400.f, 400.f, 1.f));
 
     f32 quad_vertices[] = {
         0.f, 0.f, 0.f,
@@ -170,9 +167,10 @@ void game_init(game_memory *memory) {
     glBindTexture(GL_TEXTURE_2D, gs->test_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, pp.width, pp.height, 0, format, GL_UNSIGNED_BYTE, pie_buffer);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, decoded.width, decoded.height, 0,
+                GL_RGBA, GL_UNSIGNED_BYTE, pie_buffer);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // pie_pixels_free(&pp);
@@ -190,6 +188,19 @@ void game_update_and_render(input_state *input) {
         glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
+    glUseProgram(gs->quad_shader_id);
+    {
+        i32 uloc = glGetUniformLocation(gs->quad_shader_id, "projection");
+        glUniformMatrix4fv(uloc, 1, 0, &gs->quad_projection.data[0][0]);
+
+        uloc = glGetUniformLocation(gs->quad_shader_id, "model");
+        glUniformMatrix4fv(uloc, 1, 0, &gs->quad_model.data[0][0]);
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, gs->test_texture);
+        glBindVertexArray(gs->quad_vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+
     glUseProgram(gs->text_shader_id);
     {
         i32 uloc = glGetUniformLocation(gs->text_shader_id, "projection");
@@ -205,19 +216,6 @@ void game_update_and_render(input_state *input) {
         glUseProgram(gs->text_shader_id);
         glBindVertexArray(gs->text_vao);
         glDrawArrays(GL_TRIANGLES, 0, 132 * 6);
-    }
-
-    glUseProgram(gs->quad_shader_id);
-    {
-        i32 uloc = glGetUniformLocation(gs->quad_shader_id, "projection");
-        glUniformMatrix4fv(uloc, 1, 0, &gs->quad_projection.data[0][0]);
-
-        uloc = glGetUniformLocation(gs->quad_shader_id, "model");
-        glUniformMatrix4fv(uloc, 1, 0, &gs->quad_model.data[0][0]);
-        glActiveTexture(GL_TEXTURE0 + 0);
-        glBindTexture(GL_TEXTURE_2D, gs->test_texture);
-        glBindVertexArray(gs->quad_vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     gs->frame += 1;

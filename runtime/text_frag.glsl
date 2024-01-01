@@ -24,7 +24,8 @@ float screen_px_range() {
 }
 
 void main() {
-    vec3 msd = texture(msdf, v_uvs).rgb;
+    vec2 flipped_uvs = vec2(v_uvs.x, 1.f - v_uvs.y);
+    vec3 msd = texture(msdf, flipped_uvs).rgb;
     float sd = median(msd.r, msd.g, msd.b);
     float scrpixdist = screen_px_range() * (sd - 0.5);
     float opacity = clamp(scrpixdist + 0.5, 0.0, 1.0);

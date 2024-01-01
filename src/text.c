@@ -53,12 +53,12 @@ result text_write(v3 pos, v2 scale, glyph *font, s8 text, allocator al) {
         text_vertex *vf = &verts[i * 6 + 5];
 
         // Align y, g, etc.
-        f32 y = v.y + sz.y * g.b;
+        f32 y = RENDER_HEIGHT - v.y - sz.y * g.b;
 
         *va = (text_vertex){v3(v.x, y, v.z), v2(p, q), v4(1.f, 1.f, 1.f, 1.f)};
         *vb = (text_vertex){v3(v.x + sz.x, y, v.z), v2(r, q), v4(1.f, 1.f, 1.f, 1.f)};
-        *vc = (text_vertex){v3(v.x + sz.x, y + sz.y, v.z), v2(r, s), v4(1.f, 1.f, 1.f, 1.f)};
-        *vd = (text_vertex){v3(v.x, y + sz.y, v.z), v2(p, s), v4(1.f, 1.f, 1.f, 1.f)};
+        *vc = (text_vertex){v3(v.x + sz.x, y - sz.y, v.z), v2(r, s), v4(1.f, 1.f, 1.f, 1.f)};
+        *vd = (text_vertex){v3(v.x, y - sz.y, v.z), v2(p, s), v4(1.f, 1.f, 1.f, 1.f)};
         *ve = *va;
         *vf = *vc;
 
