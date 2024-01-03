@@ -7,7 +7,7 @@
 #include "arena.c"
 #include "draw.c"
 #include "tga.c"
-#define pie_u8 byte
+#define pie_u8 u8
 #define pie_u16 u16
 #define pie_u32 u32
 #include "../../pie/pie.h"
