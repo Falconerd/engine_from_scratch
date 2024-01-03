@@ -141,10 +141,10 @@ void game_init(game_memory *memory) {
     gs->quad_shader_id = draw_shader_create("runtime/quad_vert.glsl", "runtime/quad_frag.glsl", transient_allocator);
     assert(gs->quad_shader_id);
 
-    m4_ortho(&gs->quad_projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
+    m4_ortho(&gs->quad_projection, 0.f, WINDOW_WIDTH, 0.f, WINDOW_HEIGHT, -1.f, 1.f);
     gs->quad_model = m4_identity();
-    // m4_translate(&gs->quad_model, v3(-0.8f, 0.8f, 0.f));
-    m4_scale(&gs->quad_model, v3(400.f, 400.f, 1.f));
+    m4_translate(&gs->quad_model, v3(0.0f, 0.0f, 0.f));
+    m4_scale(&gs->quad_model, v3(300.f, 300.f, 1.f));
 
     f32 quad_vertices[] = {
         0.f, 0.f, 0.f,

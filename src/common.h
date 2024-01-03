@@ -16,7 +16,7 @@ typedef __int32             i32;
 typedef __int64             i64;
 typedef float               f32;
 typedef double              f64;
-typedef char                byte;
+typedef unsigned char       byte;
 typedef __int64             size;
 typedef unsigned __int64    uptr;
 
