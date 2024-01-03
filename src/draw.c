@@ -1,3 +1,6 @@
+#ifndef DRAW_INCLUDED
+#define DRAW_INCLUDED
+
 #include "gl.h"
 
 typedef struct {
@@ -48,3 +51,5 @@ u32 draw_shader_create(char *vp, char *fp, allocator a) {
 
     return id;
 }
+
+#endif

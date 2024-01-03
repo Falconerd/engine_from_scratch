@@ -119,3 +119,30 @@ typedef struct {
 // Declare Type-Definition+Function-Pointer macro.
 #define TDFP_INNER(a, b) a##def##b
 #define TDFP(return_type, name, params) typedef return_type TDFP_INNER(name, params); TDFP_INNER(name, *) name;
+
+typedef struct {
+    int half_transitions;
+    b32 down;
+} key_state;
+
+typedef struct {
+    key_state forward;
+    key_state backward;
+    key_state left;
+    key_state right;
+} input_state;
+
+#include "mem.c"
+#include "os.c"
+#include "array.c"
+#include "math.c"
+#include "s8.c"
+#include "arena.c"
+#include "draw.c"
+#include "tga.c"
+#define pie_u8 u8
+#define pie_u16 u16
+#define pie_u32 u32
+#include "../../pie/pie.h"
+#include "text.c"
+

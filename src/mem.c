@@ -1,3 +1,6 @@
+#ifndef MEM_INCLUDED
+#define MEM_INCLUDED
+
 #include "common.h"
 
 void mem_copy(void *dest, void *src, i64 size) {
@@ -29,3 +32,5 @@ uptr align_forward(uptr ptr, i64 alignment) {
 b32 is_aligned(void *ptr, i64 alignment) {
     return ((uptr)ptr % alignment) == 0;
 }
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef ARENA_INCLUDED
+#define ARENA_INCLUDED
+
 #define DEFAULT_ALIGNMENT (2 * sizeof(void *))
 
 typedef struct {
@@ -44,3 +47,5 @@ void arena_free_all(void *context) {
     a->offset = 0;
     a->committed = 0;
 }
+
+#endif

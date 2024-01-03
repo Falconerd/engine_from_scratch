@@ -1,3 +1,6 @@
+#ifndef OS_INCLUDED
+#define OS_INCLUDED
+
 #include "win32.h"
 
 typedef struct {
@@ -28,3 +31,6 @@ os_file os_file_read(char *name, allocator a) {
     }
     return f;
 }
+
+#endif
+

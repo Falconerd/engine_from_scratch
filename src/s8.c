@@ -1,3 +1,6 @@
+#ifndef S8_INCLUDED
+#define S8_INCLUDED
+
 typedef struct {
     i64 length;
     u8 *data;
@@ -39,3 +42,6 @@ b32 s8_contains(s8 haystack, s8 needle) {
 }
 
 #define s8_from_str(s, a) (s8_clone((s8){strlen(s), (u8 *)s}, a))
+
+#endif
+

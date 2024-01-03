@@ -1,3 +1,6 @@
+#ifndef MATH_INCLUDED
+#define MATH_INCLUDED
+
 #include "common.h"
 
 #define CONST_PI  3.141592f
@@ -242,3 +245,6 @@ void m4_look_at(m4 *result, v3 eye, v3 center, v3 up) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif
+

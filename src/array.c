@@ -1,3 +1,6 @@
+#ifndef ARRAY_INCLUDED
+#define ARRAY_INCLUDED
+
 /*
     This is a dynamic array library.
     It requires a custom allocator and does not guarantee pointer safety.
@@ -121,3 +124,6 @@ void array_put_fn(array_h *h, i64 item_size, void *item) {
     dest += sizeof(array_h) + item_size * h->length;
     mem_copy(dest, item, item_size);
 }
+
+#endif
+

@@ -1,3 +1,6 @@
+#ifndef TEXT_INCLUDED
+#define TEXT_INCLUDED
+
 /*
     Let's go over some usage code first to get a feel for how this should work.
     Of course, initially, I don't really need anything fancy - perhaps some function that will
@@ -167,3 +170,6 @@ glyph monofonto_atlas_data[] = {
 [126] = {0.5f,-0.015625f,0.251624f,0.515625f,0.470374f,36.5f,4.5f,70.5f,18.5}
 
 };
+
+#endif
+

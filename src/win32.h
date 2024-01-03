@@ -186,3 +186,4 @@ void *wglGetProcAddress(char *);
 TDFP(const char *, wglGetExtensionsStringARB, (HDC));
 TDFP(b32, wglChoosePixelFormatARB, (HDC, int *, f32 *, u32, int *, u32 *));
 TDFP(HGLRC, wglCreateContextAttribsARB, (HDC, HGLRC, int *));
+

@@ -1,18 +1,8 @@
 #include "common.h"
-#include "mem.c"
-#include "os.c"
-#include "array.c"
-#include "math.c"
-#include "s8.c"
-#include "arena.c"
-#include "draw.c"
-#include "tga.c"
-#define pie_u8 u8
-#define pie_u16 u16
-#define pie_u32 u32
-#include "../../pie/pie.h"
-#include "text.c"
-#include "game.c"
+
+TDFP(void, game_update_and_render, (input_state *input));
+TDFP(void, game_init, (game_memory *memory));
+TDFP(void, game_load_gl_functions, (void));
 
 #define ErrorBox(m) MessageBox(0, m, "Error", 0)
 
@@ -38,7 +28,18 @@ void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
-void *proc_load(char *name) {
+void win32_load_game_code(void) {
+    void *module = LoadLibrary("game.dll");
+    assert(module);
+    game_update_and_render = (game_update_and_renderdef *)GetProcAddress(module, "game_update_and_render");
+    game_init = (game_initdef *)GetProcAddress(module, "game_init");
+    game_load_gl_functions = (game_load_gl_functionsdef *)GetProcAddress(module, "game_load_gl_functions");
+    assert(game_update_and_render);
+    assert(game_init);
+    assert(game_load_gl_functions);
+}
+
+void *win32_gl_proc_load(char *name) {
     void *p = (void *)wglGetProcAddress(name);
     if(p == 0 || (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) || (p == (void*)-1)) {
         void *module = LoadLibrary("opengl32.dll");
@@ -47,10 +48,51 @@ void *proc_load(char *name) {
     return p;
 }
 
-#define proc_load_assign(n) n = (n##def *)proc_load(#n); assert(n && "Failed to load n");
+#define win32_gl_proc_load_assign(n) n = (n##def *)win32_gl_proc_load(#n); assert(n && "Failed to load n");
+
+void win32_load_gl_functions(void) {
+    win32_gl_proc_load_assign(wglGetExtensionsStringARB);
+    win32_gl_proc_load_assign(wglChoosePixelFormatARB);
+    win32_gl_proc_load_assign(wglCreateContextAttribsARB);
+
+    win32_gl_proc_load_assign(glCreateShader);
+    win32_gl_proc_load_assign(glCompileShader);
+    win32_gl_proc_load_assign(glShaderSource);
+    win32_gl_proc_load_assign(glGetShaderiv);
+    win32_gl_proc_load_assign(glGetShaderInfoLog);
+    win32_gl_proc_load_assign(glCreateProgram);
+    win32_gl_proc_load_assign(glAttachShader);
+    win32_gl_proc_load_assign(glLinkProgram);
+    win32_gl_proc_load_assign(glGetProgramInfoLog);
+    win32_gl_proc_load_assign(glGetProgramiv);
+    win32_gl_proc_load_assign(glGenVertexArrays);
+    win32_gl_proc_load_assign(glBindVertexArray);
+    win32_gl_proc_load_assign(glGenBuffers);
+    win32_gl_proc_load_assign(glBindBuffer);
+    win32_gl_proc_load_assign(glBufferData);
+    win32_gl_proc_load_assign(glVertexAttribPointer);
+    win32_gl_proc_load_assign(glEnableVertexAttribArray);
+    win32_gl_proc_load_assign(glBindVertexArray);
+    win32_gl_proc_load_assign(glDrawArrays);
+    win32_gl_proc_load_assign(glGetError);
+    win32_gl_proc_load_assign(glUseProgram);
+    win32_gl_proc_load_assign(glGenTextures);
+    win32_gl_proc_load_assign(glBindTexture);
+    win32_gl_proc_load_assign(glTexImage2D);
+    win32_gl_proc_load_assign(glTexParameteri);
+    win32_gl_proc_load_assign(glActiveTexture);
+    win32_gl_proc_load_assign(glGetUniformLocation);
+    win32_gl_proc_load_assign(glUniform1i);
+    win32_gl_proc_load_assign(glUniformMatrix4fv);
+    win32_gl_proc_load_assign(glViewport);
+    win32_gl_proc_load_assign(glEnable);
+    win32_gl_proc_load_assign(glBlendFunc);
+}
 
 int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcode) {
     (void)inst; (void)previnst; (void)cline; (void)showcode;
+    
+    win32_load_game_code();
 
     WNDCLASSA wc = {0, window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
 
@@ -116,42 +158,8 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
 
     // Get the proc address of all the required functions first.
     // If this fails, there's no point continuing.
-    proc_load_assign(wglGetExtensionsStringARB);
-    proc_load_assign(wglChoosePixelFormatARB);
-    proc_load_assign(wglCreateContextAttribsARB);
-
-    proc_load_assign(glCreateShader);
-    proc_load_assign(glCompileShader);
-    proc_load_assign(glShaderSource);
-    proc_load_assign(glGetShaderiv);
-    proc_load_assign(glGetShaderInfoLog);
-    proc_load_assign(glCreateProgram);
-    proc_load_assign(glAttachShader);
-    proc_load_assign(glLinkProgram);
-    proc_load_assign(glGetProgramInfoLog);
-    proc_load_assign(glGetProgramiv);
-    proc_load_assign(glGenVertexArrays);
-    proc_load_assign(glBindVertexArray);
-    proc_load_assign(glGenBuffers);
-    proc_load_assign(glBindBuffer);
-    proc_load_assign(glBufferData);
-    proc_load_assign(glVertexAttribPointer);
-    proc_load_assign(glEnableVertexAttribArray);
-    proc_load_assign(glBindVertexArray);
-    proc_load_assign(glDrawArrays);
-    proc_load_assign(glGetError);
-    proc_load_assign(glUseProgram);
-    proc_load_assign(glGenTextures);
-    proc_load_assign(glBindTexture);
-    proc_load_assign(glTexImage2D);
-    proc_load_assign(glTexParameteri);
-    proc_load_assign(glActiveTexture);
-    proc_load_assign(glGetUniformLocation);
-    proc_load_assign(glUniform1i);
-    proc_load_assign(glUniformMatrix4fv);
-    proc_load_assign(glViewport);
-    proc_load_assign(glEnable);
-    proc_load_assign(glBlendFunc);
+    win32_load_gl_functions();
+    game_load_gl_functions();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 

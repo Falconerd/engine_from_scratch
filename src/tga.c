@@ -1,3 +1,6 @@
+#ifndef TGA_INCLUDED
+#define TGA_INCLUDED
+
 #include "common.h"
 // typedef struct {
 //    char  idlength;
@@ -38,3 +41,6 @@ result rgb_from_tga(byte *tga_bytes, allocator a) {
     }
     return (result){s, data};
 }
+
+#endif
+

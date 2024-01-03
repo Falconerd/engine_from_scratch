@@ -1,18 +1,6 @@
 #include "common.h"
 #include "win32.h"
 
-typedef struct {
-    int half_transitions;
-    b32 down;
-} key_state;
-
-typedef struct {
-    key_state forward;
-    key_state backward;
-    key_state left;
-    key_state right;
-} input_state;
-
 typedef struct game_state {
     b32 is_running;
     u64 frame;
@@ -170,17 +158,12 @@ void game_init(game_memory *memory) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, decoded.width, decoded.height, 0,
-                GL_RGBA, GL_UNSIGNED_BYTE, pie_buffer);
+                format, GL_UNSIGNED_BYTE, pie_buffer);
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    // pie_pixels_free(&pp);
 }
 
 void game_update_and_render(input_state *input) {
-    if (input->forward.down) {
-        MessageBox(0, "ARST", "ARST", 0);
-        input->forward.down = 0;
-    }
+    (void)input;
 
     glUseProgram(gs->shader_id);
     {
@@ -220,3 +203,57 @@ void game_update_and_render(input_state *input) {
 
     gs->frame += 1;
 }
+
+#ifdef _WIN32
+
+void *win32_gl_proc_load(char *name) {
+    void *p = (void *)wglGetProcAddress(name);
+    if(p == 0 || (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) || (p == (void*)-1)) {
+        void *module = LoadLibrary("opengl32.dll");
+        p = (void *)GetProcAddress(module, name);
+    }
+    return p;
+}
+
+#define win32_gl_proc_load_assign(n) n = (n##def *)win32_gl_proc_load(#n); assert(n && "Failed to load n");
+
+void game_load_gl_functions(void) {
+    win32_gl_proc_load_assign(glCreateShader);
+    win32_gl_proc_load_assign(glCompileShader);
+    win32_gl_proc_load_assign(glShaderSource);
+    win32_gl_proc_load_assign(glGetShaderiv);
+    win32_gl_proc_load_assign(glGetShaderInfoLog);
+    win32_gl_proc_load_assign(glCreateProgram);
+    win32_gl_proc_load_assign(glAttachShader);
+    win32_gl_proc_load_assign(glLinkProgram);
+    win32_gl_proc_load_assign(glGetProgramInfoLog);
+    win32_gl_proc_load_assign(glGetProgramiv);
+    win32_gl_proc_load_assign(glGenVertexArrays);
+    win32_gl_proc_load_assign(glBindVertexArray);
+    win32_gl_proc_load_assign(glGenBuffers);
+    win32_gl_proc_load_assign(glBindBuffer);
+    win32_gl_proc_load_assign(glBufferData);
+    win32_gl_proc_load_assign(glVertexAttribPointer);
+    win32_gl_proc_load_assign(glEnableVertexAttribArray);
+    win32_gl_proc_load_assign(glBindVertexArray);
+    win32_gl_proc_load_assign(glDrawArrays);
+    win32_gl_proc_load_assign(glGetError);
+    win32_gl_proc_load_assign(glUseProgram);
+    win32_gl_proc_load_assign(glGenTextures);
+    win32_gl_proc_load_assign(glBindTexture);
+    win32_gl_proc_load_assign(glTexImage2D);
+    win32_gl_proc_load_assign(glTexParameteri);
+    win32_gl_proc_load_assign(glActiveTexture);
+    win32_gl_proc_load_assign(glGetUniformLocation);
+    win32_gl_proc_load_assign(glUniform1i);
+    win32_gl_proc_load_assign(glUniformMatrix4fv);
+    win32_gl_proc_load_assign(glViewport);
+    win32_gl_proc_load_assign(glEnable);
+    win32_gl_proc_load_assign(glBlendFunc);
+}
+
+int _DllMainCRTStartup(void *inst, int reason, void *res) {
+    (void)inst; (void)reason; (void)res;
+    return 1;
+}
+#endif
