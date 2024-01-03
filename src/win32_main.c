@@ -1,6 +1,6 @@
 #include "common.h"
 
-TDFP(void, game_update_and_render, (input_state *input));
+TDFP(void, game_update_and_render, (game_memory *memory, input_state *input, int load_timer));
 TDFP(void, game_init, (game_memory *memory));
 TDFP(void, game_load_gl_functions, (void));
 
@@ -28,15 +28,28 @@ void *test_alloc(i64 size, void *context) {
     return VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 }
 
+// typedef struct {
+//     void *dll;
+//     game_update_and_renderref *update_and_render;
+//     game_init
+// } win32_game_code;
+void *game_dll_module = 0;
 void win32_load_game_code(void) {
-    void *module = LoadLibrary("game.dll");
-    assert(module);
-    game_update_and_render = (game_update_and_renderdef *)GetProcAddress(module, "game_update_and_render");
-    game_init = (game_initdef *)GetProcAddress(module, "game_init");
-    game_load_gl_functions = (game_load_gl_functionsdef *)GetProcAddress(module, "game_load_gl_functions");
+    if (game_dll_module) {
+        b32 x = FreeLibrary(game_dll_module);
+        int err = GetLastError();
+    }
+    CopyFile("game.dll", "_game.dll", 0);
+    game_dll_module = LoadLibrary("_game.dll");
+    assert(game_dll_module);
+    game_update_and_render = (game_update_and_renderdef *)GetProcAddress(game_dll_module, "game_update_and_render");
+    game_init = (game_initdef *)GetProcAddress(game_dll_module, "game_init");
+    game_load_gl_functions = (game_load_gl_functionsdef *)GetProcAddress(game_dll_module, "game_load_gl_functions");
     assert(game_update_and_render);
     assert(game_init);
     assert(game_load_gl_functions);
+
+    game_load_gl_functions();
 }
 
 void *win32_gl_proc_load(char *name) {
@@ -70,6 +83,7 @@ void win32_load_gl_functions(void) {
     win32_gl_proc_load_assign(glGenBuffers);
     win32_gl_proc_load_assign(glBindBuffer);
     win32_gl_proc_load_assign(glBufferData);
+    win32_gl_proc_load_assign(glBufferSubData);
     win32_gl_proc_load_assign(glVertexAttribPointer);
     win32_gl_proc_load_assign(glEnableVertexAttribArray);
     win32_gl_proc_load_assign(glBindVertexArray);
@@ -91,8 +105,6 @@ void win32_load_gl_functions(void) {
 
 int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcode) {
     (void)inst; (void)previnst; (void)cline; (void)showcode;
-    
-    win32_load_game_code();
 
     WNDCLASSA wc = {0, window_proc, 0, 0, 0, 0, 0, 0, 0, WINDOW_TITLE};
 
@@ -159,7 +171,7 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
     // Get the proc address of all the required functions first.
     // If this fails, there's no point continuing.
     win32_load_gl_functions();
-    game_load_gl_functions();
+    win32_load_game_code();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -213,7 +225,15 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    i32 load_timer = 10;
     for (;;) {
+        if (load_timer <= 0) {
+            gm.is_initialized = 0;
+            win32_load_game_code();
+            load_timer = 10;
+        }
+        load_timer -= 1;
+
         MSG msg;
         while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
@@ -250,7 +270,7 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
         glClearColor(0.f, 0.6f, 0.6f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        game_update_and_render(&input);
+        game_update_and_render(&gm, &input, load_timer);
 
         SwapBuffers(dc);
     }

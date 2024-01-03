@@ -74,6 +74,7 @@ TDFP(void, glBindVertexArray, (u32 vao));
 TDFP(void, glGenBuffers, (u32 count, u32 *dest));
 TDFP(void, glBindBuffer, (u32 target, u32 vbo));
 TDFP(void, glBufferData, (u32 target, size s, void *data, u32 usage));
+TDFP(void, glBufferSubData, (u32 target, size offset, size s, void *data));
 TDFP(void, glVertexAttribPointer, (u32 index, size s, u32 type, b32 normalized, size stride, void *pointer));
 TDFP(void, glEnableVertexAttribArray, (u32 index));
 TDFP(void, glBindVertexArray, (u32));

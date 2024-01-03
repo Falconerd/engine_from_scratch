@@ -160,7 +160,10 @@ W32(b32) SetPixelFormat(HDC, int, const PIXELFORMATDESCRIPTOR *);
 W32(b32) SwapBuffers(HDC);
 #define LoadLibrary LoadLibraryA
 W32(void *) LoadLibraryA(char *);
+W32(b32) FreeLibrary(void *);
 W32(void *) GetProcAddress(void *, char *);
+#define CopyFile CopyFileA
+W32(b32) CopyFileA(const char *, const char *, b32);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -186,4 +189,3 @@ void *wglGetProcAddress(char *);
 TDFP(const char *, wglGetExtensionsStringARB, (HDC));
 TDFP(b32, wglChoosePixelFormatARB, (HDC, int *, f32 *, u32, int *, u32 *));
 TDFP(HGLRC, wglCreateContextAttribsARB, (HDC, HGLRC, int *));
-
