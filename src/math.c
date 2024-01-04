@@ -4,6 +4,7 @@
 #include "common.h"
 
 #define CONST_PI  3.141592f
+#define CONST_HALF_PI  1.570796f
 #define CONST_TAU 6.283185f
 #define TAYLOR_COUNT 6
 
@@ -18,9 +19,27 @@ f32 msqrtf(f32 v) {
     y = y * (1.5f - (x * y * y));
     return v * y;
 };
+
 f32 mtanf(f32 v) { (void)v; return 0.f; };
-f32 mcosf(f32 v) { (void)v; return 0.f; };
-f32 msinf(f32 v) { (void)v; return 0.f; };
+f32 msinf(f32 v) {
+    i32 n = (x / CONST_HALF_PI + 0.5f);
+    v -= n * CONST_HALF_PI;
+    n = mod32(n, (i32)4);
+    switch (n) {
+        case 0:
+            return _sine(v);
+        case 1:
+            return _cosine(v);
+        case 2:
+            return -_sine(v);
+        case 3:
+            return -_cosine(v);
+    }
+};
+
+f32 mcosf(f32 v) {
+    return msinf(v + CONST_HALF_PI);
+};
 
 u32 mrand(u32 v) {
     v = (v << 13) ^ v;

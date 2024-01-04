@@ -19,6 +19,7 @@
 #define GL_ARRAY_BUFFER 0x8892
 #define GL_ELEMENT_ARRAY_BUFFER 0x8893
 #define GL_STATIC_DRAW 0x88E4
+#define GL_POINTS 0x0000
 #define GL_TRIANGLES 0x0004
 #define GL_TEXTURE0 0x84C0
 #define GL_TEXTURE_MIN_FILTER 0x2801
@@ -92,3 +93,4 @@ TDFP(void, glUniformMatrix4fv, (i32, size, b32, f32 *));
 TDFP(void, glViewport, (i32, i32, size, size));
 TDFP(void, glEnable, (u32));
 TDFP(void, glBlendFunc, (u32, u32));
+TDFP(void, glPointSize, (f32));

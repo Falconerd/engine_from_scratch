@@ -101,6 +101,7 @@ void win32_load_gl_functions(void) {
     win32_gl_proc_load_assign(glViewport);
     win32_gl_proc_load_assign(glEnable);
     win32_gl_proc_load_assign(glBlendFunc);
+    win32_gl_proc_load_assign(glPointSize);
 }
 
 int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcode) {
