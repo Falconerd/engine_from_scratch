@@ -38,6 +38,7 @@ void win32_load_game_code(void) {
     if (game_dll_module) {
         b32 x = FreeLibrary(game_dll_module);
         int err = GetLastError();
+        (void)x; (void)err; // Used in debugging.
     }
     CopyFile("game.dll", "_game.dll", 0);
     game_dll_module = LoadLibrary("_game.dll");

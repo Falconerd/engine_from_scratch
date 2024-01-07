@@ -22,19 +22,20 @@ f32 msqrtf(f32 v) {
 
 f32 mtanf(f32 v) { (void)v; return 0.f; };
 f32 msinf(f32 v) {
-    i32 n = (x / CONST_HALF_PI + 0.5f);
-    v -= n * CONST_HALF_PI;
-    n = mod32(n, (i32)4);
-    switch (n) {
-        case 0:
-            return _sine(v);
-        case 1:
-            return _cosine(v);
-        case 2:
-            return -_sine(v);
-        case 3:
-            return -_cosine(v);
-    }
+    (void)v; return 0;
+    // i32 n = (x / CONST_HALF_PI + 0.5f);
+    // v -= n * CONST_HALF_PI;
+    // n = mod32(n, (i32)4);
+    // switch (n) {
+    //     case 0:
+    //         return _sine(v);
+    //     case 1:
+    //         return _cosine(v);
+    //     case 2:
+    //         return -_sine(v);
+    //     case 3:
+    //         return -_cosine(v);
+    // }
 };
 
 f32 mcosf(f32 v) {

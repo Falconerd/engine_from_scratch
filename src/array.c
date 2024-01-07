@@ -11,10 +11,10 @@
         i64 capacity = 8;
         int *arr = array(int, capacity, a);
 
-        array_push(x, 42);
-        array_push(x, 23);
-        array_push(x, 13);
-        array_push(x, 17);
+        array_append(x, 42);
+        array_append(x, 23);
+        array_append(x, 13);
+        array_append(x, 17);
 
         assert(arr[0] == 42);
         assert(arr[1] == 23);
@@ -50,9 +50,11 @@ typedef struct {
     allocator a;
 } array_h;
 
-#define array(t, a) (t *)array_fn(sizeof(t), 8, a)
+#define ARRAY_INITIAL_CAPACITY (16)
 
-void *array_fn(i64 item_size, i64 capacity, allocator a) {
+#define array(t, a) (t *)array_init(sizeof(t), ARRAY_INITIAL_CAPACITY, a)
+
+void *array_init(i64 item_size, i64 capacity, allocator a) {
     byte *mem = make(byte, item_size * capacity + sizeof(array_h), a);
     if (!mem) {
         return 0;
@@ -68,7 +70,7 @@ void *array_fn(i64 item_size, i64 capacity, allocator a) {
 
 #define array_header(a) ((array_h *)(a) - 1)
 
-void *array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
+void *array_ensure_capacity(void *a, i64 item_count, i64 item_size) {
     array_h *h = array_header(a);
     i64 desired_capacity = h->length + item_count;
     if (h->capacity < desired_capacity) {
@@ -109,21 +111,24 @@ void *array_ensure_capacity_fn(void *a, i64 item_count, i64 item_size) {
     return h + 1;
 }
 
-#define array_put(a, v) ( \
-    (a) = array_ensure_capacity_fn(a, 1, sizeof(v)), \
+#define array_length(a) (((array_h *)a - 1)->length)
+
+#define array_append(a, v) ( \
+    (a) = array_ensure_capacity(a, 1, sizeof(v)), \
     (a)[array_header(a)->length++] = (v))
-#define array_append array_put
 
-void array_put_fn(array_h *h, i64 item_size, void *item) {
-    if (h->capacity == h->length) {
-        // TODO: resize
-        // h = array_resize(h) as memory location may change.
-    }
-
-    byte *dest = (byte *)h;
-    dest += sizeof(array_h) + item_size * h->length;
-    mem_copy(dest, item, item_size);
-}
+#define array_remove(a, i) do { \
+    array_h *h = array_header(a); \
+    if (h->length == 0) { \
+    } else if (i == h->length - 1) { \
+        h->length -= 1; \
+    } else if (h->length > 1) { \
+        void *ptr = &a[i]; \
+        void *last = &a[h->length - 1]; \
+        h->length -= 1; \
+        mem_copy(ptr, last, sizeof(*a)); \
+    } \
+} while (0);
 
 #endif
 

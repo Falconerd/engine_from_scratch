@@ -23,6 +23,7 @@ typedef struct game_state {
     u32 test_texture;
 } game_state;
 
+/*
 typedef struct camera {
     v3 position;
     v3 front;
@@ -50,7 +51,7 @@ const f32 CAMERA_FLYING_SPEED   = 30;
 const f32 CAMERA_BOOSTED_SPEED  = 80;
 const f32 CAMERA_SENSITIVITY    = 0.1f;
 const f32 CAMERA_ZOOM           = 45.f;
-const v3  CAMERA_WORLD_UP       = {.data = {0, 1, 0}};
+const v3  CAMERA_WORLD_UP       = {0, 1, 0};
 
 void camera_update(camera *c) {
     c->front.x = cos(radians(c->yaw)) * cos(radians(c->pitch));
@@ -150,6 +151,7 @@ void camera_move_mouse(camera *c, f32 x, f32 y) {
 
     camera_update(c);
 }
+*/
 
 game_state *gs = 0;
 arena permanent_arena;
@@ -169,6 +171,30 @@ void game_reinit(game_memory *memory) {
     permanent_allocator = arena_alloc_init(&permanent_arena);
     transient_allocator = arena_alloc_init(&transient_arena);
     gs = make(game_state, 1, permanent_allocator);
+
+    // Initialise an array.
+    int *my_array = array(int, transient_allocator);
+
+    array_append(my_array, 42);
+    array_append(my_array, 3);
+    array_append(my_array, 6);
+    array_append(my_array, 9);
+
+    int *x = make(int, 1, transient_allocator);
+    *x = 69420;
+
+    __debugbreak();
+
+    array_remove(my_array, 1);
+
+    __debugbreak();
+
+    int sum = 0;
+    for (size i = 0; i < array_length(my_array); i += 1) {
+        sum += my_array[i];
+    }
+
+    __debugbreak();
 }
 
 void game_init(game_memory *memory) {
@@ -342,7 +368,7 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
         // NOTE: Apparently it's faster to destroy and create a new buffer.
         // We should test that.
         glBufferSubData(GL_ARRAY_BUFFER, 0, text_verts.size * sizeof(text_vertex), text_verts.data);
-        glDrawArrays(GL_TRIANGLES, 0, lt_text.length * 6);
+        glDrawArrays(GL_TRIANGLES, 0, (u32)lt_text.length * 6);
     }
 
     gs->frame += 1;

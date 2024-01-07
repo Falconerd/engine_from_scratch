@@ -33,4 +33,15 @@ b32 is_aligned(void *ptr, i64 alignment) {
     return ((uptr)ptr % alignment) == 0;
 }
 
+b32 mem_equal(void *a, void *b, size s) {
+    byte *aptr = (byte *)a;
+    byte *bptr = (byte *)b;
+    for (size i = 0; i < s; i += 1) {
+        if (aptr[i] != bptr[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 #endif
