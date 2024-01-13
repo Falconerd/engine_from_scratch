@@ -183,18 +183,18 @@ void game_reinit(game_memory *memory) {
     int *x = make(int, 1, transient_allocator);
     *x = 69420;
 
-    __debugbreak();
+    // __debugbreak();
 
     array_remove(my_array, 1);
 
-    __debugbreak();
+    // __debugbreak();
 
     int sum = 0;
     for (size i = 0; i < array_length(my_array); i += 1) {
         sum += my_array[i];
     }
 
-    __debugbreak();
+    // __debugbreak();
 }
 
 void game_init(game_memory *memory) {
@@ -334,18 +334,18 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
         glDrawArrays(GL_POINTS, 0, 6);
     }
 
-    // glUseProgram(gs->quad_shader_id);
-    // {
-    //     i32 uloc = glGetUniformLocation(gs->quad_shader_id, "projection");
-    //     glUniformMatrix4fv(uloc, 1, 0, &gs->quad_projection.data[0][0]);
+    glUseProgram(gs->quad_shader_id);
+    {
+        i32 uloc = glGetUniformLocation(gs->quad_shader_id, "projection");
+        glUniformMatrix4fv(uloc, 1, 0, &gs->quad_projection.data[0][0]);
 
-    //     uloc = glGetUniformLocation(gs->quad_shader_id, "model");
-    //     glUniformMatrix4fv(uloc, 1, 0, &gs->quad_model.data[0][0]);
-    //     glActiveTexture(GL_TEXTURE0 + 0);
-    //     glBindTexture(GL_TEXTURE_2D, gs->test_texture);
-    //     glBindVertexArray(gs->quad_vao);
-    //     glDrawArrays(GL_TRIANGLES, 0, 6);
-    // }
+        uloc = glGetUniformLocation(gs->quad_shader_id, "model");
+        glUniformMatrix4fv(uloc, 1, 0, &gs->quad_model.data[0][0]);
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, gs->test_texture);
+        glBindVertexArray(gs->quad_vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
 
     glUseProgram(gs->text_shader_id);
     {
@@ -363,7 +363,10 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
         glBindVertexArray(gs->text_vao);
         glBindBuffer(GL_ARRAY_BUFFER, gs->text_vbo);
         
-        s8 lt_text = s8_from_i32(load_timer, transient_allocator);
+        s8 lt_text = s8_concat(s8("Test concat: "), s8_from_i32(load_timer, transient_allocator), transient_allocator);
+        lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_f32(420.69f, 2, transient_allocator), transient_allocator);
+
         result text_verts = text_write(v3(10.f, 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, lt_text, transient_allocator);
         // NOTE: Apparently it's faster to destroy and create a new buffer.
         // We should test that.

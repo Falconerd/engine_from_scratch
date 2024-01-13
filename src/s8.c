@@ -41,6 +41,16 @@ b32 s8_contains(s8 haystack, s8 needle) {
     return 0;
 }
 
+s8 s8_concat(s8 s1, s8 s2, allocator a) {
+    s8 r = {0};
+    u8 *mem = make(u8, s1.length + s2.length + 1, a);
+    r.data = mem;
+    mem_copy(mem, s1.data, s1.length);
+    mem_copy(mem + s1.length, s2.data, s2.length);
+    r.length = s1.length + s2.length;
+    return r;
+}
+
 s8 s8_from_i32(i32 n, allocator a) {
     s8 r = {0};
     int i = 0;
@@ -86,6 +96,92 @@ s8 s8_from_i32(i32 n, allocator a) {
         end -= 1;
     }
     
+    r.length = i;
+    return r;
+}
+
+// Helper function to check for NaN
+b32 isnan(f32 value) {
+    return value != value;
+}
+
+// Helper function to check for infinity
+b32 isinf(f32 value) {
+    return !isnan(value) && isnan(value - value);
+}
+
+s8 s8_from_f32(f32 n, int precision, allocator a) {
+    s8 r = {0};
+    int i = 0;
+    b32 is_negative = 0;
+    r.data = make(u8, 24, a); // Buffer size may need adjustment based on precision
+    if (!r.data) {
+        __debugbreak();
+        return r;
+    }
+
+    // Check for special values: NaN and infinities
+    if (isnan(n)) {
+        memcpy(r.data, "NaN", 3);
+        r.length = 3;
+        return r;
+    }
+    if (isinf(n)) {
+        memcpy(r.data, (n < 0) ? "-inf" : "inf", (n < 0) ? 4 : 3);
+        r.length = (n < 0) ? 4 : 3;
+        return r;
+    }
+
+    if (n == 0.0f) {
+        r.data[0] = '0';
+        r.length = 1;
+        return r;
+    }
+
+    if (n < 0) {
+        is_negative = 1;
+        n = -n;
+    }
+
+    // Separate integer and fractional parts
+    i32 int_part = (i32)n;
+    f32 frac_part = n - (f32)int_part;
+
+    // Convert integer part
+    i32 int_part_copy = int_part;
+    int int_length = 0;
+    while (int_part_copy) {
+        int_part_copy /= 10;
+        int_length++;
+    }
+
+    for (int j = int_length - 1; j >= 0; j--) {
+        r.data[j] = (int_part % 10) + '0';
+        int_part /= 10;
+    }
+    i += int_length;
+
+    // Add decimal point
+    r.data[i++] = '.';
+
+    // Convert fractional part
+    for (int p = 0; p < precision; p++) {
+        frac_part *= 10.0f;
+        int num = (int)(frac_part);
+        r.data[i++] = (u8)('0' + num);
+        frac_part -= (f32)num;
+    }
+
+    // Handle negative sign
+    if (is_negative) {
+        for (int j = i; j >= 0; j--) {
+            r.data[j + 1] = r.data[j];
+        }
+        r.data[0] = '-';
+        i++;
+    }
+
+    r.data[i] = '\0';
     r.length = i;
     return r;
 }
