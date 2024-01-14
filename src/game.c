@@ -68,20 +68,6 @@ void game_reinit(game_memory *memory) {
         sum += my_array[i];
     }
 
-    {
-        v3 camera_pos = {0.f, 0.f, 6.f};
-        camera_init(&gs->main_camera, camera_pos, CAMERA_WORLD_UP, CAMERA_YAW, CAMERA_PITCH);
-        f32 ratio = (f32)RENDER_WIDTH / (f32)RENDER_HEIGHT;
-        m4_perspective(&gs->projection, radians(75.f), ratio, 0.1f, 1024.f);
-
-        gs->main_camera.position.x = 0;
-        gs->main_camera.position.y = 18;
-        gs->main_camera.position.z = 0;
-
-        camera_update(&gs->main_camera);
-        camera_look_at(&gs->main_camera, V3_ZERO);
-    }
-
     // __debugbreak();
 }
 
@@ -113,6 +99,21 @@ void game_init(game_memory *memory) {
         0.f, 0.f, 1.f,
     };
     (void)colors;
+
+    // Setup 3D Camera.
+    {
+        v3 camera_pos = {0.f, 0.f, 6.f};
+        camera_init(&gs->main_camera, camera_pos, CAMERA_WORLD_UP, CAMERA_YAW, CAMERA_PITCH);
+        f32 ratio = (f32)RENDER_WIDTH / (f32)RENDER_HEIGHT;
+        m4_perspective(&gs->projection, radians(75.f), ratio, 0.1f, 1024.f);
+
+        gs->main_camera.position.x = 0;
+        gs->main_camera.position.y = 18;
+        gs->main_camera.position.z = 0;
+
+        camera_update(&gs->main_camera);
+        camera_look_at(&gs->main_camera, V3_ZERO);
+    }
 
     glGenVertexArrays(1, &gs->vao);
     glGenBuffers(1, &gs->vbo);
@@ -263,21 +264,11 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
         glBindVertexArray(gs->text_vao);
         glBindBuffer(GL_ARRAY_BUFFER, gs->text_vbo);
         
-        // s8 lt_text = s8_concat(s8("Test concat: "), s8_from_i32(load_timer, transient_allocator), transient_allocator);
-        // lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
-        // lt_text = s8_concat(lt_text, s8_from_f32(420.69f, 2, transient_allocator), transient_allocator);
-        // lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
-        s8 lt_text = s8_concat(s8_from_i32(input->mouse_x, transient_allocator), s8(" "), transient_allocator);
-        lt_text = s8_concat(lt_text, s8_from_i32(input->mouse_y, transient_allocator), transient_allocator);
-        lt_text = s8_concat(lt_text, s8_from_f32(gs->main_camera.yaw, 6, transient_allocator), transient_allocator);
-        lt_text = s8_concat(lt_text, s8_from_f32(gs->main_camera.pitch, 6, transient_allocator), transient_allocator);
-
-        lt_text = s8("This is a really long test 0.123423423424 -2.23423424444");
-        lt_text = s8_concat(lt_text, s8_from_i32(420, transient_allocator), transient_allocator);
-        i32 xxx = (i32)mrand(gs->frame);
+        s8 lt_text = s8_concat(s8("Test concat: "), s8_from_i32((i32)rand_u32(), transient_allocator), transient_allocator);
         lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
-        lt_text = s8_concat(lt_text, s8_from_i32(xxx, transient_allocator), transient_allocator);
-        lt_text = s8_concat(lt_text, s8_from_f32(69.23f, 6, transient_allocator), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_f32(420.69f, 2, transient_allocator), transient_allocator);
+        lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
+
         result text_verts = text_write(v3(10.f, 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, lt_text, transient_allocator);
         // NOTE: Apparently it's faster to destroy and create a new buffer.
         // We should test that.

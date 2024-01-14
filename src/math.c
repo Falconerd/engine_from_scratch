@@ -119,11 +119,6 @@ f32 mcosf(f32 v) {
     return msinf(v + CONST_HALF_PI);
 }
 
-u32 mrand(u32 v) {
-    v = (v << 13) ^ v;
-    return ((v * (v * v * 15731 + 789221) + 1376312589) & 0x7fffffff);
-}
-
 // Dumb Cosine to learn Taylor Series. I still don't get it.
 // NOTE: Right now I'm just converting the turn into radians by
 // multiplying by TAU.

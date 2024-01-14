@@ -140,6 +140,7 @@ typedef struct {
 #include "os.c"
 #include "array.c"
 #include "math.c"
+#include "rand.c"
 #include "s8.c"
 #include "arena.c"
 #include "draw.c"
@@ -150,4 +151,3 @@ typedef struct {
 #include "../../pie/pie.h"
 #include "camera.c"
 #include "text.c"
-
