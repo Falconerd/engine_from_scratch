@@ -18,29 +18,106 @@ f32 msqrtf(f32 v) {
     y = y * (1.5f - (x * y * y));
     y = y * (1.5f - (x * y * y));
     return v * y;
-};
+}
 
-f32 mtanf(f32 v) { (void)v; return 0.f; };
+f32 mtanf(f32 v) { (void)v; return 0.f; }
+
 f32 msinf(f32 v) {
-    (void)v; return 0;
-    // i32 n = (x / CONST_HALF_PI + 0.5f);
-    // v -= n * CONST_HALF_PI;
-    // n = mod32(n, (i32)4);
-    // switch (n) {
-    //     case 0:
-    //         return _sine(v);
-    //     case 1:
-    //         return _cosine(v);
-    //     case 2:
-    //         return -_sine(v);
-    //     case 3:
-    //         return -_cosine(v);
-    // }
-};
+    i32 div = (i32)(v / CONST_PI);
+    v = v - (div * CONST_PI);
+    i32 sign = 1;
+    if (div % 2 != 0) {
+        sign = -1;
+    }
+
+    f32 r = 1.f;
+    f32 inter = 1.f;
+    f32 num = v * v;
+
+    for (int i = 1; i <= TAYLOR_COUNT; i += 1) {
+        f32 comp = 2.f * i;
+        f32 den = comp * (comp - 1.f);
+        inter *= num / den;
+        r += (inter - 2.f * (i & 1) * inter);
+    }
+
+    return (sign * r);
+}
+
+f32 masinf(f32 v) {
+    // TODO: Figure out why this is required.
+    if (v < -1.0f - 0.0001f || v > 1.0f + 0.0001f) {
+        // Return some error value or handle error; asin is undefined outside [-1, 1]
+        volatile int x = 0;
+        assert(x);
+        return 0;
+    }
+
+    f32 low = -CONST_HALF_PI;
+    f32 high = CONST_HALF_PI;
+    f32 mid = 0, sin_mid;
+
+    while (high - low > 1e-6) { // 1e-6 is the tolerance, can be adjusted
+        mid = (low + high) / 2;
+        sin_mid = msinf(mid);
+
+        if (sin_mid < v) {
+            low = mid;
+        } else if (sin_mid > v) {
+            high = mid;
+        } else {
+            break; // Found the v
+        }
+    }
+
+    return mid;
+}
+
+f32 mabsf(f32 v) {
+    if (v < 0) return -v;
+    return v;
+}
+
+f32 matanf(f32 v) {
+    if (v < -1 || v > 1) {
+        // Use atan(x) = pi/2 - atan(1/x) for large magnitude values of x
+        return CONST_PI / 2 - matanf(1 / v);
+    }
+
+    f32 result = 0;
+    f32 v_squared = v * v;
+    f32 term = v;
+    int i = 1;
+
+    // Taylor series expansion
+    while (mabsf(term) > 1e-6) {  // 1e-6 is the tolerance, can be adjusted for precision
+        result += term;
+        term *= -v_squared * (2 * i - 1) / (2 * i + 1);
+        i += 1;
+    }
+
+    return result;
+}
+
+f32 matan2f(f32 y, f32 x) {
+    if (x > 0) {
+        return matanf(y / x);
+    } else if (y >= 0 && x < 0) {
+        return matanf(y / x) + CONST_PI;
+    } else if (y < 0 && x < 0) {
+        return matanf(y / x) - CONST_PI;
+    } else if (y > 0 && x == 0) {
+        return CONST_HALF_PI;
+    } else if (y < 0 && x == 0) {
+        return -CONST_HALF_PI;
+    } else {
+        return 0;
+    }
+}
 
 f32 mcosf(f32 v) {
     return msinf(v + CONST_HALF_PI);
-};
+}
 
 u32 mrand(u32 v) {
     v = (v << 13) ^ v;
@@ -123,6 +200,8 @@ v3 v3_cross(v3 a, v3 b) {
 f32 v3_dot(v3 a, v3 b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
+
+#define V3_ZERO v3(0.f, 0.f, 0.f)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

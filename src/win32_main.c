@@ -265,6 +265,13 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
                 break;
             }
 
+            if (msg.message == WM_MOUSEMOVE) {
+                input.mouse_prev_x = input.mouse_x;
+                input.mouse_prev_y = input.mouse_y;
+                input.mouse_x = GET_X_LPARAM(msg.lParam);
+                input.mouse_y = GET_Y_LPARAM(msg.lParam);
+            }
+
             DispatchMessage(&msg);
         }
 

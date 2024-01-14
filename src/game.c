@@ -14,144 +14,18 @@ typedef struct game_state {
     u32 arial_texture;
     m4 projection;
     m4 model;
-    // 2D textured, colored quad rendering.
+    m4 view;
+    m4 text_projection;
+    m4 text_model;
     m4 quad_projection;
     m4 quad_model;
     u32 quad_shader_id;
     u32 quad_vao;
     u32 quad_vbo;
     u32 test_texture;
+    v3 camera_pos;
+    camera main_camera;
 } game_state;
-
-/*
-typedef struct camera {
-    v3 position;
-    v3 front;
-    v3 up;
-    v3 right;
-    v3 world_up;
-    f32 yaw;
-    f32 pitch;
-    f32 movement_speed;
-    f32 mouse_sensitivity;
-    f32 zoom;
-} camera;
-
-typedef enum camera_movement {
-    CAMERA_MOVEMENT_FORWARD,
-    CAMERA_MOVEMENT_BACKWARD,
-    CAMERA_MOVEMENT_LEFT,
-    CAMERA_MOVEMENT_RIGHT,
-} camera_movement;
-
-const f32 CAMERA_YAW            = -90.f;
-const f32 CAMERA_PITCH          = 0.f;
-const f32 CAMERA_MOVEMENT_SPEED = 7.317f;
-const f32 CAMERA_FLYING_SPEED   = 30;
-const f32 CAMERA_BOOSTED_SPEED  = 80;
-const f32 CAMERA_SENSITIVITY    = 0.1f;
-const f32 CAMERA_ZOOM           = 45.f;
-const v3  CAMERA_WORLD_UP       = {0, 1, 0};
-
-void camera_update(camera *c) {
-    c->front.x = cos(radians(c->yaw)) * cos(radians(c->pitch));
-    c->front.y = sin(radians(c->pitch));
-    c->front.z = sin(radians(c->yaw)) * cos(radians(c->pitch));
-    c->front = v3_normalize(c->front);
-    c->right = v3_normalize(v3_cross(c->front, c->world_up));
-    c->up = v3_normalize(v3_cross(c->right, c->front));
-}
-
-void camera_init(camera *c, v3 p, v3 up, f32 yaw, f32 pitch) {
-    c->position = p;
-    c->world_up = up;
-    c->yaw = yaw;
-    c->pitch = pitch;
-
-    c->front = v3(0, 0, -1.f);
-    c->movement_speed = CAMERA_MOVEMENT_SPEED;
-    c->mouse_sensitivity = CAMERA_SENSITIVITY;
-    c->zoom = CAMERA_ZOOM;
-
-    camera_update(c);
-}
-
-void camera_look_at(camera *c, v3 p) {
-    v3 direction = v3_normalize(v3_sub(p, c->position));
-    c->pitch = degrees(asin(direction.y));
-    if (direction.x == 0 && direction.z == 0) {
-        c->yaw = 0;
-    } else {
-        c->yaw = degrees(atan2(direction.z, direction.x));
-    }
-
-    if (c->yaw < -90.f) {
-        c->yaw += 360.f;
-    }
-
-    camera_update(c);
-}
-
-void camera_view_matrix(camera *c, m4 *m) {
-    m4_look_at(m, c->position, v3_add(c->position, c->front), c->up);
-}
-
-void camera_move_flying(camera *c, camera_movement d, f32 dt, b32 is_boosted) {
-    f32 s = is_boosted ? CAMERA_BOOSTED_SPEED : CAMERA_FLYING_SPEED;
-    f32 v = s * dt;
-    v3 direction = {0};
-    switch (d) {
-        case CAMERA_MOVEMENT_FORWARD: {
-            direction = v3_add(direction, c->front);
-        } break;
-        default:
-            return;
-    }
-
-    if (v3_length(direction) > 0) {
-        direction = v3_normalize(direction);
-        c->position = v3_add(c->position, v3_scale(direction, v));
-    }
-}
-
-void camera_move(camera *c, camera_movement d, f32 dt) {
-    f32 v = c->movement_speed * dt;
-    v3 direction = {0};
-    switch (d) {
-        case CAMERA_MOVEMENT_FORWARD: {
-            direction = v3_add(direction, v3(c->front.x, 0, c->front.z));
-        } break;
-        case CAMERA_MOVEMENT_BACKWARD: {
-            direction = v3_sub(direction, v3(c->front.x, 0, c->front.z));
-        } break;
-        case CAMERA_MOVEMENT_LEFT: {
-            direction = v3_sub(direction, c->right);
-        } break;
-        case CAMERA_MOVEMENT_RIGHT: {
-            direction = v3_add(direction, c->right);
-        } break;
-    }
-
-    if (v3_length(direction) > 0) {
-        direction = v3_normalize(direction);
-        c->position = v3_add(c->position, v3_scale(direction, v));
-    }
-}
-
-void camera_move_mouse(camera *c, f32 x, f32 y) {
-    c->yaw += x * c->mouse_sensitivity;
-    c->pitch -= y * c->mouse_sensitivity;
-
-    if (c->pitch > 89.f) {
-        c->pitch = 89.f;
-    }
-    if (c->pitch < -89.f) {
-        c->pitch = -89.f;
-    }
-
-    camera_update(c);
-}
-*/
 
 game_state *gs = 0;
 arena permanent_arena;
@@ -192,6 +66,20 @@ void game_reinit(game_memory *memory) {
     int sum = 0;
     for (size i = 0; i < array_length(my_array); i += 1) {
         sum += my_array[i];
+    }
+
+    {
+        v3 camera_pos = {0.f, 0.f, 6.f};
+        camera_init(&gs->main_camera, camera_pos, CAMERA_WORLD_UP, CAMERA_YAW, CAMERA_PITCH);
+        f32 ratio = (f32)RENDER_WIDTH / (f32)RENDER_HEIGHT;
+        m4_perspective(&gs->projection, radians(75.f), ratio, 0.1f, 1024.f);
+
+        gs->main_camera.position.x = 0;
+        gs->main_camera.position.y = 18;
+        gs->main_camera.position.z = 0;
+
+        camera_update(&gs->main_camera);
+        camera_look_at(&gs->main_camera, V3_ZERO);
     }
 
     // __debugbreak();
@@ -249,9 +137,9 @@ void game_init(game_memory *memory) {
     gs->text_shader_id = draw_shader_create("runtime/text_vert.glsl", "runtime/text_frag.glsl", transient_allocator);
     assert(gs->text_shader_id);
 
-    m4_ortho(&gs->projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
-    gs->model = m4_identity();
-    m4_scale(&gs->model, v3(0.25f, 0.25f, 1.f));
+    m4_ortho(&gs->text_projection, 0.f, WINDOW_WIDTH, WINDOW_HEIGHT, 0.f, -1.f, 1.f);
+    gs->text_model = m4_identity();
+    m4_scale(&gs->text_model, v3(0.25f, 0.25f, 1.f));
 
     glGenVertexArrays(1, &gs->text_vao);
     glGenBuffers(1, &gs->text_vbo);
@@ -322,14 +210,26 @@ void game_init(game_memory *memory) {
 }
 
 void game_update_and_render(game_memory *memory, input_state *input, i32 load_timer) {
-    (void)input;
-
     if (!memory->is_initialized) {
         game_reinit(memory);
     }
 
     glUseProgram(gs->shader_id);
     {
+        f32 xoffset = (f32)(input->mouse_prev_x - input->mouse_x);
+        f32 yoffset = (f32)(input->mouse_prev_y - input->mouse_y);
+        camera_move_mouse(&gs->main_camera, xoffset, yoffset);
+
+        camera_view_matrix(&gs->main_camera, &gs->view);
+
+        i32 model_loc = glGetUniformLocation(gs->shader_id, "model");
+        i32 view_loc = glGetUniformLocation(gs->shader_id, "view");
+        i32 proj_loc = glGetUniformLocation(gs->shader_id, "projection");
+
+        glUniformMatrix4fv(model_loc, 1, 0, &gs->model.data[0][0]);
+        glUniformMatrix4fv(view_loc, 1, 0, &gs->view.data[0][0]);
+        glUniformMatrix4fv(proj_loc, 1, 0, &gs->projection.data[0][0]);
+
         glBindVertexArray(gs->vao);
         glDrawArrays(GL_POINTS, 0, 6);
     }
@@ -350,10 +250,10 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
     glUseProgram(gs->text_shader_id);
     {
         i32 uloc = glGetUniformLocation(gs->text_shader_id, "projection");
-        glUniformMatrix4fv(uloc, 1, 0, &gs->projection.data[0][0]);
+        glUniformMatrix4fv(uloc, 1, 0, &gs->text_projection.data[0][0]);
 
         uloc = glGetUniformLocation(gs->text_shader_id, "model");
-        glUniformMatrix4fv(uloc, 1, 0, &gs->model.data[0][0]);
+        glUniformMatrix4fv(uloc, 1, 0, &gs->text_model.data[0][0]);
         glActiveTexture(GL_TEXTURE0 + 0);
         glBindTexture(GL_TEXTURE_2D, gs->arial_texture);
 
@@ -363,13 +263,26 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
         glBindVertexArray(gs->text_vao);
         glBindBuffer(GL_ARRAY_BUFFER, gs->text_vbo);
         
-        s8 lt_text = s8_concat(s8("Test concat: "), s8_from_i32(load_timer, transient_allocator), transient_allocator);
-        lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
-        lt_text = s8_concat(lt_text, s8_from_f32(420.69f, 2, transient_allocator), transient_allocator);
+        // s8 lt_text = s8_concat(s8("Test concat: "), s8_from_i32(load_timer, transient_allocator), transient_allocator);
+        // lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
+        // lt_text = s8_concat(lt_text, s8_from_f32(420.69f, 2, transient_allocator), transient_allocator);
+        // lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
+        s8 lt_text = s8_concat(s8_from_i32(input->mouse_x, transient_allocator), s8(" "), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_i32(input->mouse_y, transient_allocator), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_f32(gs->main_camera.yaw, 6, transient_allocator), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_f32(gs->main_camera.pitch, 6, transient_allocator), transient_allocator);
 
+        lt_text = s8("This is a really long test 0.123423423424 -2.23423424444");
+        lt_text = s8_concat(lt_text, s8_from_i32(420, transient_allocator), transient_allocator);
+        i32 xxx = (i32)mrand(gs->frame);
+        lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_i32(xxx, transient_allocator), transient_allocator);
+        lt_text = s8_concat(lt_text, s8_from_f32(69.23f, 6, transient_allocator), transient_allocator);
         result text_verts = text_write(v3(10.f, 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, lt_text, transient_allocator);
         // NOTE: Apparently it's faster to destroy and create a new buffer.
         // We should test that.
+        // FIXME: I tried clearing the whole buffer before each draw, that doesn't fix the issue with overlapping
+        // numbers...
         glBufferSubData(GL_ARRAY_BUFFER, 0, text_verts.size * sizeof(text_vertex), text_verts.data);
         glDrawArrays(GL_TRIANGLES, 0, (u32)lt_text.length * 6);
     }

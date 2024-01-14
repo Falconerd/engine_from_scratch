@@ -130,6 +130,10 @@ typedef struct {
     key_state backward;
     key_state left;
     key_state right;
+    i32 mouse_x;
+    i32 mouse_y;
+    i32 mouse_prev_x;
+    i32 mouse_prev_y;
 } input_state;
 
 #include "mem.c"
@@ -144,5 +148,6 @@ typedef struct {
 #define pie_u16 u16
 #define pie_u32 u32
 #include "../../pie/pie.h"
+#include "camera.c"
 #include "text.c"
 

@@ -91,6 +91,11 @@ typedef struct {
 #define WM_QUIT             0x0012
 #define WM_KEYDOWN          0x0100
 #define WM_KEYUP            0x0101
+#define WM_MOUSEMOVE        0x0200
+#define LOWORD(l)           ((u16)(((uptr)(l)) & 0xffff))
+#define GET_X_LPARAM(lp)    ((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp)    ((int)(short)HIWORD(lp))
+#define HIWORD(l)           ((u16)((((uptr)(l)) >> 16) & 0xffff))
 
 #define PM_REMOVE           0x0001
 
