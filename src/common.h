@@ -62,11 +62,11 @@ typedef struct {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define WINDOW_TITLE "Project: MP"
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 // NOTE: Later this may be different.
-#define RENDER_WIDTH 800
-#define RENDER_HEIGHT 600
+#define RENDER_WIDTH 1920
+#define RENDER_HEIGHT 1080
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

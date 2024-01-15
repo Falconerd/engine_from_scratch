@@ -48,6 +48,7 @@ s8 s8_concat(s8 s1, s8 s2, allocator a) {
     mem_copy(mem, s1.data, s1.length);
     mem_copy(mem + s1.length, s2.data, s2.length);
     r.length = s1.length + s2.length;
+    r.data[r.length] = 0;
     return r;
 }
 

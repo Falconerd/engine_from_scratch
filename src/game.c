@@ -268,8 +268,10 @@ void game_update_and_render(game_memory *memory, input_state *input, i32 load_ti
         lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
         lt_text = s8_concat(lt_text, s8_from_f32(420.69f, 2, transient_allocator), transient_allocator);
         lt_text = s8_concat(lt_text, s8(" "), transient_allocator);
+        lt_text = s8_concat(lt_text, s8("\n"), transient_allocator);
+        lt_text = s8_concat(lt_text, s8("Test another line..."), transient_allocator);
 
-        result text_verts = text_write(v3(10.f, 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, lt_text, transient_allocator);
+        result text_verts = text_write(v3(10.f, 80.f, 0.f), v2(0.25f, 0.25f), monofonto_atlas_data, lt_text, v4(0.8f, 1.f, 0.8f, 1.f), transient_allocator);
         // NOTE: Apparently it's faster to destroy and create a new buffer.
         // We should test that.
         // FIXME: I tried clearing the whole buffer before each draw, that doesn't fix the issue with overlapping

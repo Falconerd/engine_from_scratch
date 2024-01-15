@@ -275,8 +275,8 @@ int __stdcall WinMain(void *inst, void *previnst, const char *cline, int showcod
             DispatchMessage(&msg);
         }
 
-        // glClearColor(0.f, 0.105f, 0.105f, 1.f);
-        glClearColor(0.f, 0.6f, 0.6f, 1.f);
+        glClearColor(0.f, 0.105f, 0.105f, 1.f);
+        // glClearColor(0.f, 0.6f, 0.6f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         game_update_and_render(&gm, &input, load_timer);

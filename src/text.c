@@ -26,11 +26,12 @@ typedef struct {
 // This doesn't use the advance of the font!
 // For the position, we will use coordinates as if they have been scaled,
 // rather than between 0 and 1.
-result text_write(v3 pos, v2 scale, glyph *font, s8 text, allocator al) {
+result text_write(v3 pos, v2 scale, glyph *font, s8 text, v4 color, allocator al) {
     v3 v = v3(pos.x * 1.f / scale.x, pos.y * 1.f / scale.y, pos.z);
     text_vertex *verts = make(text_vertex, text.length * 6, al);
     f32 texture_width  = font[31].x;
     f32 texture_height = font[31].y;
+    size vertex_count = 0;
 
     for (size i = 0; i < text.length; i += 1) {
         if (text.data[i] < 31 || text.data[i] > 126) continue;
@@ -58,16 +59,18 @@ result text_write(v3 pos, v2 scale, glyph *font, s8 text, allocator al) {
         // Align y, g, etc.
         f32 y = RENDER_HEIGHT - v.y - sz.y * g.b;
 
-        *va = (text_vertex){v3(v.x, y, v.z), v2(p, q), v4(1.f, 1.f, 1.f, 1.f)};
-        *vb = (text_vertex){v3(v.x + sz.x, y, v.z), v2(r, q), v4(1.f, 1.f, 1.f, 1.f)};
-        *vc = (text_vertex){v3(v.x + sz.x, y - sz.y, v.z), v2(r, s), v4(1.f, 1.f, 1.f, 1.f)};
-        *vd = (text_vertex){v3(v.x, y - sz.y, v.z), v2(p, s), v4(1.f, 1.f, 1.f, 1.f)};
+        *va = (text_vertex){v3(v.x, y, v.z), v2(p, q), color};
+        *vb = (text_vertex){v3(v.x + sz.x, y, v.z), v2(r, q), color};
+        *vc = (text_vertex){v3(v.x + sz.x, y - sz.y, v.z), v2(r, s), color};
+        *vd = (text_vertex){v3(v.x, y - sz.y, v.z), v2(p, s), color};
         *ve = *va;
         *vf = *vc;
 
         v.x += sz.x;
+
+        vertex_count += 6;
     }
-    return (result){text.length * 6, verts};
+    return (result){vertex_count, verts};
 }
 
 // NOTE: In this first version, the texture width and height are stored at 31[0] and 31[1].
